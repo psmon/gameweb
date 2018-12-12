@@ -1,18 +1,30 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Hello WebSocket</title>
+    <title>MiniGame for Multiplayer</title>
     <link href="/webjars/bootstrap/css/bootstrap.min.css" rel="stylesheet">
     <link href="/main.css" rel="stylesheet">
     <script src="/webjars/jquery/jquery.min.js"></script>
     <script src="/webjars/sockjs-client/sockjs.min.js"></script>
     <script src="/webjars/stomp-websocket/stomp.min.js"></script>
+    <script src="/js/cocos2d-beta2.js"></script>
+    <script src="/js/pscoco.js"></script>
+    <script src="/js/demo.js"></script>
+    <script type="text/javascript">
+        var cocoApp=null;
+        $(document).ready(function(){
+            cocoApp= new Application('psmon-demo',"gray");
+            cocoApp.run();
+            //runDemo(cocoApp,'rainy');
+        })
+    </script>
+
     <script src="/app.js"></script>
 </head>
 <body>
-<noscript><h2 style="color: #ff0000">Seems your browser doesn't support Javascript! Websocket relies on Javascript being
-    enabled. Please enable
-    Javascript and reload this page!</h2></noscript>
+
+<div id="psmon-demo" style="width: 600px; height: 480px;float: left;"></div>
+
 <div id="main-content" class="container">
     <div class="row">
         <div class="col-md-6">
@@ -38,6 +50,11 @@
         </div>
     </div>
     <div class="row">
+        <button id="demo1" class="btn btn-default" >demo1</button>
+        <button id="demo2" class="btn btn-default" >demo2</button>
+        <button id="demo3" class="btn btn-default" >demo3</button>
+        <button id="demo4" class="btn btn-default" >demo4</button>
+        <button id="demo5" class="btn btn-default" >demo5</button>
         <div class="col-md-12">
             <table id="conversation" class="table table-striped">
                 <thead>
