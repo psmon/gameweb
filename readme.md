@@ -20,4 +20,6 @@ We configured only the minimum web socket connection network. Game logic can be 
 
 pscocos : A long time ago, a legacy canvas library that modified cocos 2d.js
 
+doc : http://psmon.x-y.net/pscoco/sample.html
+
 ![...](doc/canvas.gif)
