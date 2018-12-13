@@ -9,8 +9,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
+import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.stereotype.Component;
+
+import javax.xml.ws.Service;
 
 @Component
 @Scope(value = ConfigurableBeanFactory.SCOPE_SINGLETON)
@@ -23,7 +26,7 @@ public class Lobby {
 
     private Map<Integer,Table> gameTables;
 
-    public void Lobby(){
+    public  Lobby(){
         gameTables = new HashMap<Integer, Table>();
         // Create
         for(int i=0;i<5;i++){

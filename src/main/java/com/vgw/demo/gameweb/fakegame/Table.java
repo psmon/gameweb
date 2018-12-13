@@ -1,16 +1,16 @@
 package com.vgw.demo.gameweb.fakegame;
 
 public class Table {
-
     private int tableId;
     private int maxPly;
     private int minPly;
+
     private Game    game;
 
-    public void Table(){
+    public  Table(){
         maxPly=9;
         minPly=3;
-        game = new Game(this);
+        //game = new Game(this);
     }
 
     public int getTableId() {
@@ -19,6 +19,9 @@ public class Table {
 
     public void setTableId(int tableId) {
         this.tableId = tableId;
+        game = new Game();
+        game.setTable(this);
+        game.start();
     }
 
     public int getMaxPly() {
