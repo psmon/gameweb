@@ -1,6 +1,6 @@
-# StandAlone for HTML5 Multiplayer MiniGame
+# PSMON's LightWeight Game Kit
 
-- url : http://localhost:8080/
+- launchurl : http://localhost:8080/
 
 ## Application Layout
 - controller : endpoint for ws
@@ -12,6 +12,8 @@
 
 ## Server
 
+spring boot 2 + websocket
+
 We configured only the minimum web socket connection network. Game logic can be filled in by you.
 
 ![...](doc/ws-server.png)
@@ -21,5 +23,3 @@ We configured only the minimum web socket connection network. Game logic can be 
 pscocos : A long time ago, a legacy canvas library that modified cocos 2d.js
 
 doc : http://psmon.x-y.net/pscoco/sample.html
-
-![...](doc/canvas.gif)
