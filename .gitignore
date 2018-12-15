@@ -23,3 +23,6 @@
 /dist/
 /nbdist/
 /.nb-gradle/
+/src/main/resources/static/img/cards/output/*.db
+/src/main/resources/static/img/*.db
+/src/main/resources/static/img/cards/*.db

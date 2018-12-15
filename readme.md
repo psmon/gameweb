@@ -20,7 +20,7 @@ strategy :
 - The turn is most advantageous because it is finished at the dealer, so it is better to bully the dealer for information concealment.
 - It is better to exchange cards with players faster than your actions, but you may not get any useful information.
  
-전략예:
+Strategy example:
  
      1.ply1(Dealer): X , ply2 : X , ply3 : X , ply4 : Y
      2.ply1(Dealer): X , ply2 : X , ply3 : X , ply4 : Y
