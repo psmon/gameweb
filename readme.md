@@ -1,37 +1,35 @@
 # PSMON's LightWeight WebGame Kit
 
-- git : https://github.com/psmon/gameweb
-- launchurl : http://localhost:8080/
+# Game Demo1 : Card Friends
 
-## Application Layout
-- controller : endpoint for ws
-- entity : local db
-- game : game logic
-- message : realtime game message
-- fakegame : test object (without process,just obj for websock)
-- static : html5 client resources
+![card](/doc/cards-1.JPG)
 
-master repository does not have game logic. If you have a minimal kit for multiplayer and you have a game idea, you can start off with the master branch
+Rule: Win with a unique card shape winner (at least 3 players)
 
+Shuffle Condition: The game begins with a unique card shape and the rest of the card shape.
 
-## Server
-
-spring boot 2 + websocket
-
-We configured only the minimum web socket connection network. Game logic can be filled in by you.
-
-![...](doc/ws-server.png)
-
-## Client
-
-pscocos : A long time ago, a legacy canvas library that modified cocos 2d.js by psmon
-
-If you want to create more complex and colorful games. Convert html5 canvas and jquery to modern development
-
-doc : http://psmon.x-y.net/pscoco/sample.html
-
-## Large capacity distributed processing system
-
-Prototypes created here can be mass-processed using the following techniques.
-
-url : https://github.com/psmon/springcloud
+Game Step:
+- Receive one random card
+- Action from the left side of the dealer. One turn ends at the dealer.
+- It takes 1 turn to the dealer and ends by 2 turns. Dealer changed in the same direction as the action at the start of the game
+- You can do two actions in your own action time: change the opponent and the card or not.
+strategy :
+- You have to exchange information while exchanging cards to get and get unique card shape information.
+- If the swapped card is the same as the opponent, you can assume that this card can not be a victory card.
+- If the card you exchanged is different from the opponent, both cards can be a victory card, but you can not know the information with only one exchange.
+- The turn is most advantageous because it is finished at the dealer, so it is better to bully the dealer for information concealment.
+- It is better to exchange cards with players faster than your actions, but you may not get any useful information.
+ 
+전략예:
+ 
+     1.ply1(Dealer): X , ply2 : X , ply3 : X , ply4 : Y
+     2.ply1(Dealer): X , ply2 : X , ply3 : X , ply4 : Y
+     3.ply1(Dealer): Y , ply2 : X , ply3 : X , ply4 : X
+     4.ply1(Dealer): X , ply2 : Y , ply3 : X , ply4 : X
+     
+ 1. If you have received a card like 1, nobody knows if your card is a victory card yet.
+ 2. If ply2 and ply3 change cards, you can know that the victory card is Y.
+ 3. ply1 and ply4 have changed cards, but they do not know what the victory cards are.
+ 4. ply1 and ply2 changed cards. ply2 already knows that Y is a victory card, and ply1 is now known. However, ply2 from the dealer can not keep this card.
+ 5. ply4 may end the game without even knowing what the victory card is.
+ 
