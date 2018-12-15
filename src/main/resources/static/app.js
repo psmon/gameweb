@@ -72,11 +72,10 @@ $(function () {
     $( "#disconnect" ).click(function() { disconnect(); });
     $( "#send" ).click(function() { sendGameMsg(); });
 
-    $( "#demo1" ).click(function() { runDemo(cocoApp,'seqTo'); });
-    $( "#demo2" ).click(function() { runDemo(cocoApp,'EasyIn'); });
-    $( "#demo3" ).click(function() { runDemo(cocoApp,'EaseInOut'); });
-    $( "#demo4" ).click(function() { runDemo(cocoApp,'EaseBounceOut'); });
-    $( "#demo5" ).click(function() { runDemo(cocoApp,'clickEvent'); });
+    $( "#demo1" ).click(function() { renderTable('intro'); });
+    $( "#demo2" ).click(function() { renderTable('background'); });
+    $( "#demo3" ).click(function() { renderTable('gameinit'); });
+
 
 
 });

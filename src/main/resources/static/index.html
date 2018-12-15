@@ -9,7 +9,7 @@
     <script src="/webjars/stomp-websocket/stomp.min.js"></script>
     <script src="/js/cocos2d-beta2.js"></script>
     <script src="/js/pscoco.js"></script>
-    <script src="/js/demo.js"></script>
+    <script src="/js/gametable.js"></script>
     <script type="text/javascript">
         var cocoApp=null;
         $(document).ready(function(){
@@ -23,14 +23,15 @@
 </head>
 <body>
 
-<div id="psmon-demo" style="width: 600px; height: 480px;float: left;"></div>
+<div id="psmon-demo" style="width: 800px; height: 600px;float: left;"></div>
 
 <div id="main-content" class="container">
     <div class="row">
         <div class="col-md-6">
             <form class="form-inline">
                 <div class="form-group">
-                    <label for="connect">WebSocket connection:</label>
+                    <label for="name">What is your name?</label>
+                    <input type="text" id="name" class="form-control" placeholder="Your name here...">
                     <button id="connect" class="btn btn-default" type="submit">Connect</button>
                     <button id="disconnect" class="btn btn-default" type="submit" disabled="disabled">Disconnect
                     </button>
@@ -40,10 +41,7 @@
         <div class="col-md-6">
             <form class="form-inline">
                 <div class="form-group">
-                    <label for="name">What is your name?</label>
-                    <input type="text" id="name" class="form-control" placeholder="Your name here...">
                     <input type="text" id="gamemsg" class="form-control" placeholder="Game Message here...">
-
                 </div>
                 <button id="send" class="btn btn-default" type="submit">Send</button>
             </form>

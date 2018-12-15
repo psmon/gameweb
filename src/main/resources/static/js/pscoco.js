@@ -157,6 +157,7 @@ BaseSprite.prototype.seqTo = function(data){
     this.runAction(seqAni);
 }
 
+
 BaseSprite.prototype.moveTo = function(data,isRun){
     var x=data.x;
     var y=data.y;
