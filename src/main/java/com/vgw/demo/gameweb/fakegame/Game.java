@@ -1,5 +1,6 @@
 package com.vgw.demo.gameweb.fakegame;
 
+import com.vgw.demo.gameweb.controler.WebSocketEventListener;
 import com.vgw.demo.gameweb.message.GameMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,8 +21,9 @@ public class Game extends Thread{
 
     private static final Logger logger = LoggerFactory.getLogger(Lobby.class);
 
-    @Autowired
-    private SimpMessageSendingOperations messagingTemplate;
+    //@Autowired
+    //private SimpMessageSendingOperations messagingTemplate;
+
 
     Queue<GameMessage>  gameMessages;
 
@@ -42,6 +44,7 @@ public class Game extends Thread{
     private int maxTurn;
 
     public void setTable(Table table){
+        //messagingTemplate = WebSocketEventListener.getSender();
         this.table = table;
         turnSeq=0;
         maxTurn=2;
@@ -153,6 +156,13 @@ public class Game extends Thread{
         }
     }
 
+    protected void OnConnectPly(Player ply){
+        GameMessage gameMessage = new GameMessage();
+        gameMessage.setType(GameMessage.MessageType.GAME);
+        gameMessage.setContent("info^^conok^^"+table.getTableId());
+        send(ply,gameMessage);
+    }
+
 
     protected void chkGame(boolean isDebug){
         if(isDebug)
@@ -168,13 +178,19 @@ public class Game extends Thread{
     }
 
     protected void send(Player player,@Payload GameMessage gameMessage){
+        SimpMessageSendingOperations messagingTemplate = Lobby.getSender(player.getSession());
         SimpMessageHeaderAccessor headerAccessor = SimpMessageHeaderAccessor
                 .create(SimpMessageType.MESSAGE);
         headerAccessor.setSessionId(player.getSession());
         headerAccessor.setLeaveMutable(true);
 
-        messagingTemplate.convertAndSendToUser(player.getSession(),"/queue/something", gameMessage,
-                headerAccessor.getMessageHeaders());
+        GameMessage gameMessage2 = new GameMessage();
+        gameMessage2.setType(GameMessage.MessageType.GAME);
+        //gameMessage.setSender(username);
+
+        //messagingTemplate.convertAndSendToUser(player.getName(),"public",gameMessage);
+        messagingTemplate.convertAndSendToUser(player.getSession(),"/topic/public",gameMessage );
+
     }
 
 }

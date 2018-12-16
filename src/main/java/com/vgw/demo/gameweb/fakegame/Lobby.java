@@ -21,10 +21,9 @@ public class Lobby {
 
     private static final Logger logger = LoggerFactory.getLogger(Lobby.class);
 
-    @Autowired
-    private SimpMessageSendingOperations messagingTemplate;
-
     private Map<Integer,Table> gameTables;
+
+    static private Map<String,SimpMessageSendingOperations>    sessionMgr = new HashMap<>();
 
     public  Lobby(){
         gameTables = new HashMap<Integer, Table>();
@@ -35,6 +34,18 @@ public class Lobby {
             addTable.setTableId(autoTableID);
             gameTables.put(autoTableID,addTable);
         }
+    }
+
+    public void addSender(String sessionid,SimpMessageSendingOperations sender){
+        sessionMgr.put(sessionid,sender);
+    }
+
+    public void removeSender(String sessionid){
+        sessionMgr.remove(sessionid);
+    }
+
+    static public SimpMessageSendingOperations getSender(String sessionid){
+        return sessionMgr.get(sessionid);
     }
 
     public Table findTableByID(Integer tableId){
@@ -51,6 +62,13 @@ public class Lobby {
         msg.setContent(message.getContent());
         msg.setType(GameMessage.MessageType.CHAT);
         return msg;
+    }
+
+    public void joinGameTable(int tableId,String name,String session){
+        Player ply = new Player();
+        ply.setName(name);
+        ply.setSession(session);
+        gameTables.get(tableId).joinTable(ply);
     }
 
 }

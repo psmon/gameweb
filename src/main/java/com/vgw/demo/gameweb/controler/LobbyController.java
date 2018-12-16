@@ -11,6 +11,8 @@ import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.stereotype.Controller;
 
+import java.security.Principal;
+
 @Controller
 public class LobbyController {
 
@@ -18,6 +20,7 @@ public class LobbyController {
 
     @Autowired
     Lobby lobby;
+
 
     @MessageMapping("/lobby.addUser")
     @SendTo("/topic/public")
@@ -27,8 +30,13 @@ public class LobbyController {
         String  sessionId = headerAccessor.getSessionId();
         logger.info("Add User:" + sessionId );
 
+        //String secuname = headerAccessor.setUser();
         // Add username in web socket session
         headerAccessor.getSessionAttributes().put("username", gameMessage.getSender());
+        headerAccessor.getSessionAttributes().put("ws-session", headerAccessor.getUser().getName());
+
+        //headerAccessor.getSessionAttributes().put("secuname", secuname);
+
         gameMessage.setContent("added Succed..");
         return gameMessage;
     }

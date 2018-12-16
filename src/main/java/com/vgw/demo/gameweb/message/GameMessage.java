@@ -4,9 +4,10 @@ public class GameMessage {
     private MessageType type;
     private String content;
     private String sender;
-    private Object gameinfo;
+    private Object info;
 
     public enum MessageType {
+        NONE,
         CHAT,
         VIEW,
         JOIN,
@@ -38,11 +39,11 @@ public class GameMessage {
         this.sender = sender;
     }
 
-    public Object getGameinfo() {
-        return gameinfo;
+    public Object getInfo() {
+        return info;
     }
 
-    public void setGameinfo(Object gameinfo) {
-        this.gameinfo = gameinfo;
+    public void setInfo(Object info) {
+        this.info = info;
     }
 }

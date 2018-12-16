@@ -13,12 +13,17 @@ function setConnected(connected) {
 }
 
 function connect() {
-    var socket = new SockJS('/gs-guide-websocket');
+    var socket = new SockJS('/ws');
     stompClient = Stomp.over(socket);
     stompClient.connect({}, function (frame) {
         setConnected(true);
         console.log('Connected: ' + frame);
+
+        // for broad cast
         stompClient.subscribe('/topic/public', onMessageReceived );
+
+        // for send to some
+        stompClient.subscribe('/user/topic/public', onMessageReceived );
 
         var username=$("#name").val();
         if(username.length<1){username="Unknown"};
@@ -38,11 +43,20 @@ function disconnect() {
     console.log("Disconnected");
 }
 
-function sendGameMsg() {
+
+function sendChatMsg() {
     var content = $('#gamemsg').val();
     stompClient.send("/app/hello",
         {},
         JSON.stringify({content: content, type: 'CHAT'})
+    )
+}
+
+function sendGameMsg() {
+    var content = $('#gamemsg').val();
+    stompClient.send("/app/game.req",
+        {},
+        JSON.stringify({content: content, type: 'GAME'})
     )
 }
 
@@ -56,7 +70,7 @@ function onMessageReceived(payload) {
     var messageElement = document.createElement('li');
 
     if(message.type === 'JOIN') {
-        showGreeting(message.sender + '-- joined!')
+        showGreeting('Welcome ' + message.sender)
     } else if (message.type === 'LEAVE') {
         showGreeting(message.sender + 'left!')
     } else {

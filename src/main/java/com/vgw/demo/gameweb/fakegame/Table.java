@@ -10,12 +10,14 @@ public class Table {
     private int dealer;
 
     List<Player>    playList;
+    List<Player>    viewList;
     private Game    game;
 
     protected void initTable(){
         maxPly=9;
         minPly=3;
         playList = new ArrayList<>();
+        viewList = new ArrayList<>();
     }
 
     public  Table(){
@@ -23,6 +25,7 @@ public class Table {
         //game = new Game(this);
     }
 
+    // Todo : Name--> Unique ID Base...
     public Player findUser(String name){
         Player result=null;
         for(Player ply:playList){
@@ -47,6 +50,12 @@ public class Table {
 
     protected void addUser(Player ply){
         playList.add(ply);
+    }
+
+    public void joinTable(Player ply){
+        //Todo: dupilcated check by session
+        viewList.add(ply);
+        game.OnConnectPly(ply);
     }
 
     public void seatUser(Player ply){
