@@ -71,4 +71,8 @@ public class Lobby {
         gameTables.get(tableId).joinTable(ply);
     }
 
+    public Table getTable(int tableId){
+        return gameTables.get(tableId);
+    }
+
 }

@@ -2,6 +2,7 @@ package com.vgw.demo.gameweb.fakegame;
 
 import com.vgw.demo.gameweb.controler.WebSocketEventListener;
 import com.vgw.demo.gameweb.message.GameMessage;
+import com.vgw.demo.gameweb.message.SessionMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,11 +22,18 @@ public class Game extends Thread{
 
     private static final Logger logger = LoggerFactory.getLogger(Lobby.class);
 
-    //@Autowired
-    //private SimpMessageSendingOperations messagingTemplate;
+    Queue<SessionMessage>  gameMessages;
 
+    public void addGameMessage(SessionMessage msg){
+        gameMessages.add(msg);
+    }
 
-    Queue<GameMessage>  gameMessages;
+    protected SessionMessage peekGameMessage(){
+        if(gameMessages.size()>0)
+            return gameMessages.peek();
+        else
+            return null;
+    }
 
     public enum GameState
     {
@@ -104,10 +112,10 @@ public class Game extends Thread{
     protected GameMessage waitForAction(Player ply,int waitTime){
         GameMessage action = null;
         for(int i=0;i<waitTime;i++){
-            GameMessage peekMsg=gameMessages.peek();
-            if(peekMsg.getSender()==ply.getSession() && peekMsg.getType().equals("GAME") ){
+            SessionMessage peekMsg=gameMessages.peek();
+            if(peekMsg.session==ply.getSession() && peekMsg.gameMessage.equals("GAME") ){
                 gameProcess(peekMsg);
-                action=peekMsg;
+                action=peekMsg.gameMessage;
                 break;
             }else {
                 otherProcess(peekMsg);
@@ -118,10 +126,10 @@ public class Game extends Thread{
         return action;
     }
 
-    protected void otherProcess(GameMessage gameMessage){
+    protected void otherProcess(SessionMessage gameMessage){
     }
 
-    protected void gameProcess(GameMessage gameMessage){
+    protected void gameProcess(SessionMessage gameMessage){
 
     }
 
@@ -156,11 +164,69 @@ public class Game extends Thread{
         }
     }
 
+    private void testDemoPacket(Player ply){
+        GameMessage reusePacket = new GameMessage();
+        reusePacket.setType(GameMessage.MessageType.GAME);
+        // Seat User
+        for(int idx=0;idx<5;idx++){
+            reusePacket = new GameMessage();
+            reusePacket.setType(GameMessage.MessageType.GAME);
+            reusePacket.setContent("seat");
+            reusePacket.setSender("psmon-"+idx);
+            reusePacket.setSeatno(idx);
+            reusePacket.setNum1(500+idx);
+            send(ply,reusePacket);
+        }
+
+        float delayTotal=1.0f;
+        // Move Dealer
+        reusePacket = new GameMessage();
+        reusePacket.setType(GameMessage.MessageType.GAME);
+        reusePacket.setDelay(delayTotal);
+        reusePacket.setContent( String.format("dealer"));
+        reusePacket.setSeatno(2);
+        send(ply,reusePacket);
+
+        // Auto Bet
+        for(int idx=0;idx<5;idx++){
+            delayTotal+=0.5f;
+            reusePacket = new GameMessage();
+            reusePacket.setType(GameMessage.MessageType.GAME);
+            reusePacket.setContent( String.format("bet"));
+            reusePacket.setSeatno(idx);
+            reusePacket.setNum1(30);
+            reusePacket.setDelay(delayTotal);
+            send(ply,reusePacket);
+        }
+
+        // Card
+        for(int idx=0;idx<5;idx++){
+            delayTotal+=0.3f;
+            reusePacket = new GameMessage();
+            reusePacket.setType(GameMessage.MessageType.GAME);
+            reusePacket.setContent( String.format("card"));
+            reusePacket.setSeatno(idx);
+            reusePacket.setNum1(0); //Back-Card
+            reusePacket.setDelay(delayTotal);
+            send(ply,reusePacket);
+        }
+    }
+
+    protected void OnSeatPly(Player ply){
+        GameMessage gameMessage = new GameMessage();
+        gameMessage.setType(GameMessage.MessageType.GAME);
+        gameMessage.setContent("seat!!"+ply.getSeatNo()+"!!"+ply.getName()+"!!"+ply.getChips() );
+        sendAll(gameMessage);
+    }
+
     protected void OnConnectPly(Player ply){
         GameMessage gameMessage = new GameMessage();
         gameMessage.setType(GameMessage.MessageType.GAME);
-        gameMessage.setContent("info!!conok!!"+table.getTableId());
+        gameMessage.setContent("readytable");
+        gameMessage.setNum1(table.getTableId());
         send(ply,gameMessage);
+        //For Test
+        testDemoPacket(ply);
     }
 
     public void OnError(Player ply,String errorMsg){
@@ -179,7 +245,7 @@ public class Game extends Thread{
     }
 
     protected void sendAll(@Payload GameMessage gameMessage){
-        for(Player ply:table.getPlayList()){
+        for(Player ply:table.viewList){
             send(ply,gameMessage);
         }
     }
@@ -190,14 +256,8 @@ public class Game extends Thread{
                 .create(SimpMessageType.MESSAGE);
         headerAccessor.setSessionId(player.getSession());
         headerAccessor.setLeaveMutable(true);
-
         GameMessage gameMessage2 = new GameMessage();
         gameMessage2.setType(GameMessage.MessageType.GAME);
-        //gameMessage.setSender(username);
-
-        //messagingTemplate.convertAndSendToUser(player.getName(),"public",gameMessage);
         messagingTemplate.convertAndSendToUser(player.getSession(),"/topic/public",gameMessage );
-
     }
-
 }

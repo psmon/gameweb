@@ -35,7 +35,7 @@ public class Player {
         this.chips = chips;
     }
 
-    public void updateChups(int amount){
+    public void updateChips(int amount){
         chips+=amount;
     }
     public int getCard() {

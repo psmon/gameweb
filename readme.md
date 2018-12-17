@@ -30,6 +30,10 @@ Strategy example:
  1. If you have received a card like 1, nobody knows if your card is a victory card yet.
  2. If ply2 and ply3 change cards, you can know that the victory card is Y.
  3. ply1 and ply4 have changed cards, but they do not know what the victory cards are.
- 4. ply1 and ply2 changed cards. ply2 already knows that Y is a victory card, and ply1 is now known. However, ply2 from the dealer can not keep this card.
+ 4. ply1 and ply2 changed cards. ply2 already knows that Y is a victory card, and ply1 is now known. However, However, if the dealer knows the victory card, it is likely to be lost.
  5. ply4 may end the game without even knowing what the victory card is.
+ 6. After the game ends, ply2 with a unique card will win.
  
+# Game Packet
+
+[](packet.md)

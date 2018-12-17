@@ -99,8 +99,10 @@ public class Table {
             if(playList.size()<maxPly){
                 int revSeatNo = getAvableSeatAnyAndReseved();
                 if(revSeatNo>-1){
+                    //Auto Seat
                     ply.setSeatNo(revSeatNo);
                     addUser(ply);
+                    game.OnSeatPly(ply);
                 }
             }
         }else{

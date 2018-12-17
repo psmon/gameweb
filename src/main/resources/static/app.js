@@ -8,6 +8,7 @@ function setConnected(connected) {
     }
     else {
         $("#conversation").hide();
+        renderTable('intro');
     }
     $("#greetings").html("");
 }
@@ -43,6 +44,13 @@ function disconnect() {
     console.log("Disconnected");
 }
 
+function joinTable(tableNo) {
+    var content = $('#gamemsg').val();
+    stompClient.send("/app/game.req",
+        {},
+        JSON.stringify({content: 'join',num1:tableNo, type: 'GAME'})
+    )
+}
 
 function sendChatMsg() {
     var content = $('#gamemsg').val();
@@ -69,12 +77,15 @@ function onMessageReceived(payload) {
 
     var messageElement = document.createElement('li');
 
-    if(message.type === 'JOIN') {
+    if(message.type == 'JOIN') {
         showGreeting('Welcome ' + message.sender)
-    } else if (message.type === 'LEAVE') {
+    } else if (message.type == 'LEAVE') {
         showGreeting(message.sender + 'left!')
-    } else {
-        showGreeting(message.content)
+    } else if(message.type == 'GAME'){
+        processTableMessage(message);
+        showGreeting(message.content);
+    } else{
+        showGreeting(message.content);
     }
 }
 
@@ -86,10 +97,8 @@ $(function () {
     $( "#disconnect" ).click(function() { disconnect(); });
     $( "#send" ).click(function() { sendGameMsg(); });
 
-    $( "#demo1" ).click(function() { renderTable('intro'); });
-    $( "#demo2" ).click(function() { renderTable('background'); });
-    $( "#demo3" ).click(function() { renderTable('gameinit'); });
-
-
+    $( "#demo1" ).click(function() { joinTable(1) });
+    $( "#demo2" ).click(function() { renderTable('background') });
+    $( "#demo3" ).click(function() { renderTable('gameinit') });
 
 });
