@@ -159,7 +159,14 @@ public class Game extends Thread{
     protected void OnConnectPly(Player ply){
         GameMessage gameMessage = new GameMessage();
         gameMessage.setType(GameMessage.MessageType.GAME);
-        gameMessage.setContent("info^^conok^^"+table.getTableId());
+        gameMessage.setContent("info!!conok!!"+table.getTableId());
+        send(ply,gameMessage);
+    }
+
+    public void OnError(Player ply,String errorMsg){
+        GameMessage gameMessage = new GameMessage();
+        gameMessage.setType(GameMessage.MessageType.ERROR);
+        gameMessage.setContent("error!!"+errorMsg);
         send(ply,gameMessage);
     }
 

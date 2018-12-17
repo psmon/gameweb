@@ -9,6 +9,7 @@ public class Player {
     private int totalMoney;
     private int chips;
     private int card;
+    private int seatNo;
 
     public String getId() {
         return id;
@@ -59,5 +60,13 @@ public class Player {
 
     public void setTotalMoney(int totalMoney) {
         this.totalMoney = totalMoney;
+    }
+
+    public int getSeatNo() {
+        return seatNo;
+    }
+
+    public void setSeatNo(int seatNo) {
+        this.seatNo = seatNo;
     }
 }

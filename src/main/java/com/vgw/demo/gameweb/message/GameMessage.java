@@ -8,6 +8,7 @@ public class GameMessage {
 
     public enum MessageType {
         NONE,
+        ERROR,
         CHAT,
         VIEW,
         JOIN,
