@@ -5,11 +5,69 @@ var medalPos =new Array({x:50,y:400},{x:150,y:450},{x:270,y:500},{x:420,y:500},{
 var playerinfos = new Array();
 var userCards = new Array();
 
+var UserBox = new Array(
+    {avatar:null,titile:null,chip:null,card:null},{avatar:null,titile:null,chip:null,card:null},
+        {avatar:null,titile:null,chip:null,card:null},{avatar:null,titile:null,chip:null,card:null},
+        {avatar:null,titile:null,chip:null,card:null},{avatar:null,titile:null,chip:null,card:null},
+        {avatar:null,titile:null,chip:null,card:null}
+    );
+
 function displayPoint(x,y){
     _seqCount++;
     var label = cocoApp.addLabel({string: _seqCount , fontName:"Arial",fontSize:16,fontColor:"red" });
     label.position.x=x;
     label.position.y=y;
+}
+
+function userBoxVisible(seatno,opacity) {
+    UserBox[seatno].avatar.opacity=opacity;
+    UserBox[seatno].titile.opacity=opacity;
+    UserBox[seatno].chip.opacity=opacity;
+    UserBox[seatno].card.opacity=opacity;
+}
+
+function seatIn(seatno) {
+    UserBox[seatno].avatar.opacity=100;
+    UserBox[seatno].titile.opacity=100;
+    UserBox[seatno].chip.opacity=100;
+    UserBox[seatno].card.opacity=0;
+}
+
+function seatOut(seatno) {
+    UserBox[seatno].avatar.opacity=0;
+    UserBox[seatno].titile.opacity=0;
+    UserBox[seatno].chip.opacity=0;
+    UserBox[seatno].card.opacity=0;
+}
+
+function itItStage() {
+    for(var seatno;seatno<7;seatno++){
+        UserBox[seatno].card.opacity=0;
+    }
+}
+
+function userBoxLoad() {
+    for(var seatno=0;seatno<7;seatno++){
+        var imgUrl='img/avartar/'+ Number(seatno+1).toString() +'-crop.png';
+        var avatar = cocoApp.addImage(imgUrl, medalPos[seatno].x, medalPos[seatno].y);
+        avatar.scale=0.5;
+
+        var card = cocoApp.addImage('img/cards/casino-back.png', medalPos[seatno].x, medalPos[seatno].y-100);
+        var lblName = cocoApp.addLabel({string:"noname",fontName:"Arial",fontSize:26,fontColor:"WHITE" });
+        lblName.position.x=medalPos[seatno].x;
+        lblName.position.y=medalPos[seatno].y+60;
+
+        var lblChip = cocoApp.addLabel({string:"0",fontName:"Arial",fontSize:26,fontColor:"WHITE" });
+        lblChip.position.x=medalPos[seatno].x;
+        lblChip.position.y=medalPos[seatno].y+90;
+
+        UserBox[seatno].avatar=avatar;
+        UserBox[seatno].card=card;
+        UserBox[seatno].titile=lblName;
+        UserBox[seatno].chip=lblChip;
+        userBoxVisible(seatno,0);
+    }
+
 }
 
 
@@ -36,13 +94,6 @@ function testCardChange() {
 }
 
 
-function seatInPlayer(gameMessage) {
-    var seatno = gameMessage.seatno;
-    var imgUrl='img/avartar/'+ Number(seatno+1).toString() +'-crop.png';
-    var img = cocoApp.addImage(imgUrl, medalPos[seatno].x, medalPos[seatno].y);
-    img.scale=0.5
-}
-
 function processTableMessage(gameMessage) {
     var aniDelay = gameMessage.delay;
     var seatno = gameMessage.seatno;
@@ -50,9 +101,16 @@ function processTableMessage(gameMessage) {
         case "readytable":
             renderTable('background');
             dealer = cocoApp.addImage('img/table/dealer-button.png', medalPos[0].x, medalPos[0].y-100);
+            userBoxLoad();
+            break;
+        case "stagestart":
+            itItStage();
             break;
         case "seat":
-            seatInPlayer(gameMessage);
+            seatIn(seatno);
+            break;
+        case "seatout":
+            seatOut(seatno);
             break;
         case "dealer":
             //dealer.moveTo({x:medalPos[0].x,y:medalPos[0].y-100,duration:2,delay:aniDelay*0.1,angle:90,opacity:50,scale:0.5});
@@ -69,6 +127,7 @@ function processTableMessage(gameMessage) {
                 testShowCard(seatno)
             }, 9000 +(seatno+1*500));
             break;
+
     }
 }
 

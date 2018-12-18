@@ -158,6 +158,13 @@ public class Game extends Thread{
         }
     }
 
+    protected void stagestart(){
+        gameState=GameState.START;
+        GameMessage message = new GameMessage();
+        message.setContent("stagestart");
+        sendAll(message);
+    }
+
     protected void betting(){
         gameState=GameState.BET;
         float aniDelay=0.0f;
@@ -182,7 +189,6 @@ public class Game extends Thread{
         }else if(turnSeq==1){
 
         }
-
     }
 
     protected void gameResult(){
@@ -238,7 +244,7 @@ public class Game extends Thread{
                 }
 
                 if(isStartGame() && loopCnt %10==0 ){
-                    gameState=GameState.START;
+                    stagestart();
                     logger.info("Game Bet Card");
                     betting();
                     logger.info("Game Ready Card");
@@ -306,14 +312,27 @@ public class Game extends Thread{
         }
     }
 
-    protected void OnSeatPly(Player ply){
+
+    protected void sendSeatInfo(Player ply,Boolean isAll,Player target){
         GameMessage gameMessage = new GameMessage();
         gameMessage.setType(GameMessage.MessageType.GAME);
         gameMessage.setContent("seat" );
         gameMessage.setSeatno(ply.getSeatNo());
         gameMessage.setNum1(ply.getChips());
         gameMessage.setSender(ply.getName());
-        sendAll(gameMessage);
+        if(isAll)
+            sendAll(gameMessage);
+        else
+            send(target,gameMessage);
+    }
+
+    protected void OnSeatPly(Player ply){
+        sendSeatInfo(ply,true,null);
+        for(Player other:table.getPlayList()){
+            if(!ply.getSession().equals(other.getSession())){
+                sendSeatInfo(other,false,ply);
+            }
+        }
     }
 
     protected void OnSeatOutPly(Player ply){
@@ -321,8 +340,7 @@ public class Game extends Thread{
         gameMessage.setType(GameMessage.MessageType.GAME);
         gameMessage.setContent("seatout" );
         gameMessage.setSeatno(ply.getSeatNo());
-        //gameMessage.setNum1(ply.getChips());
-        //gameMessage.setSender(ply.getName());
+        gameMessage.setSender(ply.getName());
         sendAll(gameMessage);
     }
 
@@ -332,6 +350,9 @@ public class Game extends Thread{
         gameMessage.setContent("readytable");
         gameMessage.setNum1(table.getTableId());
         send(ply,gameMessage);
+        for(Player other:table.getPlayList()){
+            sendSeatInfo(other,false,ply);
+        }
         //For Test
         //testDemoPacket(ply);
     }

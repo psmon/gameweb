@@ -30,8 +30,10 @@ public class GameController {
         logger.info("GameMsg:" + gameMessage );
         String gamePacket = gameMessage.getContent();
         String splitMessage[] = gamePacket.split("!!");
+
         String userName = headerAccessor.getSessionAttributes().get("username").toString();
-        String userSession =  headerAccessor.getSessionAttributes().get("ws-session").toString();
+        String userSession =  headerAccessor.getUser().getName();
+
         Object objTableNo = headerAccessor.getSessionAttributes().get("tableNo");
         Integer tableNo = objTableNo!=null? (Integer)objTableNo : -1;
 

@@ -54,7 +54,7 @@ public class Table {
     protected void updatePly(Player plyayer,Boolean isView){
         List<Player> userList = isView ==true ? viewList : playList;
         for(Player ply:userList){
-            if(ply.getName().equals(plyayer.getName())){
+            if(ply.getSession().equals(plyayer.getSession())){
                 ply=plyayer;
                 break;
             }
@@ -96,14 +96,16 @@ public class Table {
     }
 
     public void cleanUser(String session){
-        Player ply = findUser(session,true);
+        Player ply = findUser(session,false);
         if(ply!=null){
-            seatOutUser(ply);
-            leaveUser(ply);
+            leaveSearUser(ply);
         }
+        Player view = findUser(session,true);
+        leaveUser(view);
     }
 
     public void seatOutUser(Player ply){
+        game.OnSeatOutPly(ply);
         playList.remove(ply);
     }
 
@@ -124,8 +126,12 @@ public class Table {
         }
     }
 
-    public void leaveUser(Player ply){
+    public void leaveSearUser(Player ply){
+        seatOutUser(ply);
         deletePly(ply);
+    }
+
+    public void leaveUser(Player ply){
         deleteViewPly(ply);
     }
 

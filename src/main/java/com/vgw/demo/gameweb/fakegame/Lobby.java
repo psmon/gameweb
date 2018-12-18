@@ -26,7 +26,7 @@ public class Lobby {
     static private Map<String,SimpMessageSendingOperations>    sessionMgr = new HashMap<>();
 
     public  Lobby(){
-        gameTables = new HashMap<Integer, Table>();
+        gameTables = new HashMap<Integer,Table>();
         // Create
         for(int i=0;i<5;i++){
             Table addTable = new Table();
