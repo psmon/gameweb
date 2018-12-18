@@ -22,11 +22,11 @@ public class Game extends Thread{
 
     public enum GameState
     {
-        WAIT,READY, START,BET,TURN1,TURN2 ,RESULT,CLOSE
+        WAIT,START,READY, CARD1,BET,TURN1,TURN2 ,RESULT,CLOSE
     };
 
     Queue<SessionMessage>  gameMessages;
-    Queue<Integer>  gameCard;
+    List<Integer>  gameCard;
 
     private int loopCnt =0;
     protected GameState gameState = GameState.WAIT;
@@ -57,15 +57,15 @@ public class Game extends Thread{
         turnSeq=0;
         maxTurn=2;
         gameMessages = new ArrayDeque<>();
+        gameCard = new ArrayList<>();
         chkGame(false);
         betAmmount=10;
     }
 
     protected boolean isStartGame(){
         boolean hasNext = false;
-        if(gameState == GameState.WAIT){
+        if( gameState == GameState.WAIT ){
             if( table.getSeatCnt() > table.getMinPly()-1 ){
-                gameState = GameState.READY;
                 hasNext = true;
             }
         }else{
@@ -77,8 +77,8 @@ public class Game extends Thread{
         return hasNext;
     }
 
-
     protected void readyCard(){
+        gameState=GameState.CARD1;
         wiinerCard=1;
         turnSeq=1;
         int playNum = table.getPlayList().size();
@@ -100,14 +100,66 @@ public class Game extends Thread{
         // 6 = 1,2,3
         // 7 = 1,2,2,2
         switch (playNum){
-
+            case 3:
+                gameCard.add(wiinerCard);
+                gameCard.add(otherCards.get(0));
+                gameCard.add(otherCards.get(0));
+                break;
+            case 4:
+                gameCard.add(wiinerCard);
+                gameCard.add(otherCards.get(0));
+                gameCard.add(otherCards.get(0));
+                gameCard.add(otherCards.get(0));
+                break;
+            case 5:
+                gameCard.add(wiinerCard);
+                gameCard.add(otherCards.get(0));
+                gameCard.add(otherCards.get(0));
+                gameCard.add(otherCards.get(1));
+                gameCard.add(otherCards.get(1));
+                break;
+            case 6:
+                gameCard.add(wiinerCard);
+                gameCard.add(otherCards.get(0));
+                gameCard.add(otherCards.get(0));
+                gameCard.add(otherCards.get(1));
+                gameCard.add(otherCards.get(1));
+                gameCard.add(otherCards.get(1));
+                break;
+            case 7:
+                gameCard.add(wiinerCard);
+                gameCard.add(otherCards.get(0));
+                gameCard.add(otherCards.get(0));
+                gameCard.add(otherCards.get(1));
+                gameCard.add(otherCards.get(1));
+                gameCard.add(otherCards.get(2));
+                gameCard.add(otherCards.get(2));
+                break;
         }
+        int seedValue = 10;
+        Collections.shuffle(gameCard, new Random(seedValue));
 
+        float aniDelay=0.0f;
+        for(Player ply:table.getPlayList()){
+            ply.setCard(gameCard.get(ply.getSeatNo()));
 
+            GameMessage sendCardInfo = new GameMessage();
+            sendCardInfo.setSeatno(ply.getSeatNo());
+            sendCardInfo.setContent("card");
+            sendCardInfo.setDelay(aniDelay);
+            sendAll(sendCardInfo);
 
+            GameMessage sendMyCard = new GameMessage();
+            sendCardInfo.setSeatno(ply.getSeatNo());
+            sendCardInfo.setContent("card");
+            sendMyCard.setDelay(5);
+            send(ply,sendMyCard);
+            aniDelay+=0.3f;
+        }
     }
 
     protected void betting(){
+        gameState=GameState.BET;
         float aniDelay=0.0f;
         for(Player ply:table.getPlayList()){
             ply.updateChips(-betAmmount);
@@ -135,6 +187,8 @@ public class Game extends Thread{
 
     protected void gameResult(){
         gameState=GameState.RESULT;
+
+        waitTime(7000); //Result Time..
     }
 
     protected void waitTime(int time){
@@ -184,13 +238,18 @@ public class Game extends Thread{
                 }
 
                 if(isStartGame() && loopCnt %10==0 ){
-                    readyCard();
+                    gameState=GameState.START;
+                    logger.info("Game Bet Card");
                     betting();
+                    logger.info("Game Ready Card");
+                    readyCard();
                     for(int turnCnt=0;turnCnt<maxTurn;turnCnt++){
                         turn(turnCnt);
                     }
                     gameResult();
+                    gameState=GameState.WAIT;
                 }
+
                 loopCnt++;
                 if(loopCnt ==1000000000) loopCnt =0;
             }
@@ -254,7 +313,16 @@ public class Game extends Thread{
         gameMessage.setSeatno(ply.getSeatNo());
         gameMessage.setNum1(ply.getChips());
         gameMessage.setSender(ply.getName());
+        sendAll(gameMessage);
+    }
 
+    protected void OnSeatOutPly(Player ply){
+        GameMessage gameMessage = new GameMessage();
+        gameMessage.setType(GameMessage.MessageType.GAME);
+        gameMessage.setContent("seatout" );
+        gameMessage.setSeatno(ply.getSeatNo());
+        //gameMessage.setNum1(ply.getChips());
+        //gameMessage.setSender(ply.getName());
         sendAll(gameMessage);
     }
 
@@ -265,7 +333,7 @@ public class Game extends Thread{
         gameMessage.setNum1(table.getTableId());
         send(ply,gameMessage);
         //For Test
-        testDemoPacket(ply);
+        //testDemoPacket(ply);
     }
 
     public void OnError(Player ply,String errorMsg){

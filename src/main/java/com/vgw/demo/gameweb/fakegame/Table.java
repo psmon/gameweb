@@ -95,6 +95,18 @@ public class Table {
         return searchIdx;
     }
 
+    public void cleanUser(String session){
+        Player ply = findUser(session,true);
+        if(ply!=null){
+            seatOutUser(ply);
+            leaveUser(ply);
+        }
+    }
+
+    public void seatOutUser(Player ply){
+        playList.remove(ply);
+    }
+
     public void seatUser(Player ply){
         if(findUser(ply.getSession(),false)==null){
             if(playList.size()<maxPly){

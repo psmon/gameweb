@@ -41,6 +41,9 @@ public class Lobby {
     }
 
     public void removeSender(String sessionid){
+        for (Map.Entry<Integer, Table> entry : gameTables.entrySet()) {
+            entry.getValue().cleanUser(sessionid);
+        }
         sessionMgr.remove(sessionid);
     }
 

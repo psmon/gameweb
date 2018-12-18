@@ -45,12 +45,19 @@ function disconnect() {
 }
 
 function joinTable(tableNo) {
-    var content = $('#gamemsg').val();
     stompClient.send("/app/game.req",
         {},
         JSON.stringify({content: 'join',num1:tableNo, type: 'GAME'})
     )
 }
+
+function seatTable() {
+    stompClient.send("/app/game.req",
+        {},
+        JSON.stringify({content: 'seat', type: 'GAME'})
+    )
+}
+
 
 function sendChatMsg() {
     var content = $('#gamemsg').val();
@@ -98,7 +105,7 @@ $(function () {
     $( "#send" ).click(function() { sendGameMsg(); });
 
     $( "#demo1" ).click(function() { joinTable(1) });
-    $( "#demo2" ).click(function() { renderTable('background') });
+    $( "#demo2" ).click(function() { seatTable() });
     $( "#demo3" ).click(function() { renderTable('gameinit') });
 
 });

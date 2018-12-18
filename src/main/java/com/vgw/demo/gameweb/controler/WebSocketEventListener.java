@@ -46,15 +46,16 @@ public class WebSocketEventListener {
     @EventListener
     public void handleWebSocketDisconnectListener(SessionDisconnectEvent event) {
         StompHeaderAccessor headerAccessor = StompHeaderAccessor.wrap(event.getMessage());
-
         String username = (String) headerAccessor.getSessionAttributes().get("username");
+        String session = (String) headerAccessor.getSessionAttributes().get("ws-session");
+
         if(username != null) {
             logger.info("User Disconnected : " + username);
             GameMessage gameMessage = new GameMessage();
             gameMessage.setType(GameMessage.MessageType.LEAVE);
             gameMessage.setSender(username);
             //messagingTemplate.convertAndSend("/topic/public", gameMessage);
-            lobby.removeSender(headerAccessor.getUser().getName());
+            lobby.removeSender(session);
         }
     }
 
