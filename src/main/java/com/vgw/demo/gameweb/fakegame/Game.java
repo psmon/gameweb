@@ -141,17 +141,22 @@ public class Game extends Thread{
 
         float aniDelay=0.0f;
         for(Player ply:table.getPlayList()){
-            ply.setCard(gameCard.get(ply.getSeatNo()));
+            int playerCard = gameCard.get(ply.getSeatNo());
+            ply.setCard( playerCard );
 
             GameMessage sendCardInfo = new GameMessage();
             sendCardInfo.setSeatno(ply.getSeatNo());
             sendCardInfo.setContent("card");
+            sendCardInfo.setType(GameMessage.MessageType.GAME);
+            sendCardInfo.setNum1(0);
             sendCardInfo.setDelay(aniDelay);
             sendAll(sendCardInfo);
 
             GameMessage sendMyCard = new GameMessage();
-            sendCardInfo.setSeatno(ply.getSeatNo());
-            sendCardInfo.setContent("card");
+            sendMyCard.setSeatno(ply.getSeatNo());
+            sendMyCard.setContent("showcard");
+            sendMyCard.setType(GameMessage.MessageType.GAME);
+            sendMyCard.setNum1(playerCard);
             sendMyCard.setDelay(5);
             send(ply,sendMyCard);
             aniDelay+=0.3f;

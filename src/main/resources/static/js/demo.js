@@ -32,7 +32,7 @@ function runDemo(app,demoType){
 
             var easeOptList =[{ type:"EaseBounceOut"} , { type:"EaseInOut", rate:3 },{ type:"EaseInOut", rate:3 } ]
 
-            var img1 = cocoApp.addImage('assets/frogy1.png', 120,100, false);
+            var img1 = cocoApp.addImage('assets/frogy21.png', 120,100, false);
             var img2 = cocoApp.addImage('assets/ball1.png', 120,100, false);
 
             for(var i=0 ; i< 25 ; i++){

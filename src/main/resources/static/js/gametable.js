@@ -28,8 +28,8 @@ function userBoxVisible(seatno,opacity) {
 
 function seatIn(seatno) {
     UserBox[seatno].avatar.opacity=100;
-    UserBox[seatno].titile.opacity=100;
-    UserBox[seatno].chip.opacity=100;
+    UserBox[seatno].titile.opacity=300;
+    UserBox[seatno].chip.opacity=300;
     UserBox[seatno].card.opacity=0;
 }
 
@@ -120,12 +120,21 @@ function processTableMessage(gameMessage) {
             }, 4000);
             break;
         case "card":
+            UserBox[seatno].card.opacity=300;
+            UserBox[seatno].card.position.x=720;
+            UserBox[seatno].card.position.y=100;
+            UserBox[seatno].card.angle=70;
+            UserBox[seatno].card.moveTo({x:medalPos[seatno].x,y:medalPos[seatno].y-100,duration:0.5,delay:aniDelay,angle:360*3 });
+            /*
             var card = cocoApp.addImage('img/cards/casino-back.png', 720, 100);
             card.moveTo({x:medalPos[seatno].x,y:medalPos[seatno].y-100,duration:0.5,delay:aniDelay*0.5,angle:180 });
             userCards.push(card);
             setTimeout(function(){
                 testShowCard(seatno)
             }, 9000 +(seatno+1*500));
+            */
+            break;
+        case"showcard":
             break;
 
     }
