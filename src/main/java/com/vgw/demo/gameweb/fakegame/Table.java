@@ -13,6 +13,7 @@ public class Table {
     private static final Logger logger = LoggerFactory.getLogger(Table.class);
 
     private int tableId;
+    private String name;
     private int maxPly;
     private int minPly;
     private int dealer;

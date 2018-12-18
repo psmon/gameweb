@@ -18,7 +18,7 @@ function clearStage() {
 
 function testShowCard(seatno) {
 ;
-    var cardimg=['c1_001.jpg','c1_003.jpg','c1_003.jpg','c1_005.jpg','c1_005.jpg'];
+    var cardimg=['c1.jpg','c2.jpg','c2.jpg','c3.jpg','c3.jpg'];
     var backcard=cocoApp.addImage('img/cards/back.png', medalPos[seatno].x, medalPos[seatno].y-100);
     var cardshape=cocoApp.addImage('img/cards/'+cardimg[seatno], medalPos[seatno].x, medalPos[seatno].y-100);
     cardshape.scale=0.3;

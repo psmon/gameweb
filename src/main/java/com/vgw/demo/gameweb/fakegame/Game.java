@@ -13,16 +13,32 @@ import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.messaging.simp.SimpMessageType;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayDeque;
-import java.util.Queue;
+import javax.validation.constraints.Size;
+import java.util.*;
 
 @Component
 @Scope("prototype")
 public class Game extends Thread{
 
-    private static final Logger logger = LoggerFactory.getLogger(Lobby.class);
+    public enum GameState
+    {
+        WAIT,READY, START,BET,TURN1,TURN2 ,RESULT,CLOSE
+    };
 
     Queue<SessionMessage>  gameMessages;
+    Queue<Integer>  gameCard;
+
+    private int loopCnt =0;
+    protected GameState gameState = GameState.WAIT;
+    private Table table;
+
+    private int wiinerCard;
+    private int betAmmount;
+    private int totalBetAmmount;
+    private int turnSeq;
+    private int maxTurn;
+
+    private static final Logger logger = LoggerFactory.getLogger(Lobby.class);
 
     public void addGameMessage(SessionMessage msg){
         gameMessages.add(msg);
@@ -34,22 +50,6 @@ public class Game extends Thread{
         else
             return null;
     }
-
-    public enum GameState
-    {
-        WAIT,READY, START, RESULT,CLOSE
-    };
-
-    private int loopCnt =0;
-
-    protected GameState gameState = GameState.WAIT;
-
-    private Table table;
-
-    private int wiinerCard;
-    private int betAmmount;
-    private int turnSeq;
-    private int maxTurn;
 
     public void setTable(Table table){
         //messagingTemplate = WebSocketEventListener.getSender();
@@ -81,15 +81,50 @@ public class Game extends Thread{
     protected void readyCard(){
         wiinerCard=1;
         turnSeq=1;
+        int playNum = table.getPlayList().size();
+        gameCard.clear();
+
+        Random random = new Random();
+        wiinerCard = random.nextInt(8)+1;
+        List<Integer> otherCards = new ArrayList<>();
+        //Simbple Card Generator
+        while (true){
+            Integer otherCArd = random.nextInt(8)+1;
+            if(wiinerCard!=otherCArd) otherCards.add(otherCArd);
+            if(otherCards.size()==3) break;
+        }
+        // Card Split
+        // 3 = 1,2
+        // 4 = 1,3
+        // 5 = 1,2,2
+        // 6 = 1,2,3
+        // 7 = 1,2,2,2
+        switch (playNum){
+
+        }
+
+
+
     }
 
     protected void betting(){
-
+        float aniDelay=0.0f;
+        for(Player ply:table.getPlayList()){
+            ply.updateChips(-betAmmount);
+            GameMessage message = new GameMessage();
+            message.setSeatno(ply.getSeatNo());
+            message.setContent("bet");
+            message.setDelay(aniDelay);
+            message.setNum1(betAmmount);
+            message.setNum2(ply.getChips());
+            aniDelay+=0.03f;
+            // Todo: SeatOut for LoseMoney
+            send(ply,message);
+        }
     }
 
     protected void turn(int turnSeq){
         this.turnSeq=turnSeq;
-
         if(turnSeq==0){
 
         }else if(turnSeq==1){
@@ -215,7 +250,11 @@ public class Game extends Thread{
     protected void OnSeatPly(Player ply){
         GameMessage gameMessage = new GameMessage();
         gameMessage.setType(GameMessage.MessageType.GAME);
-        gameMessage.setContent("seat!!"+ply.getSeatNo()+"!!"+ply.getName()+"!!"+ply.getChips() );
+        gameMessage.setContent("seat" );
+        gameMessage.setSeatno(ply.getSeatNo());
+        gameMessage.setNum1(ply.getChips());
+        gameMessage.setSender(ply.getName());
+
         sendAll(gameMessage);
     }
 

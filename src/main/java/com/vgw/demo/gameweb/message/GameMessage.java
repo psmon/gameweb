@@ -8,6 +8,7 @@ public class GameMessage {
     private int  seatno;
     private int  num1;  //price or card num
     private int  num2;
+    private String txt1;
 
     public enum MessageType {
         NONE,
@@ -73,5 +74,13 @@ public class GameMessage {
 
     public void setDelay(float delay) {
         this.delay = delay;
+    }
+
+    public String getTxt1() {
+        return txt1;
+    }
+
+    public void setTxt1(String txt1) {
+        this.txt1 = txt1;
     }
 }
