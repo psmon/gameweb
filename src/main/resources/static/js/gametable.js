@@ -6,10 +6,10 @@ var playerinfos = new Array();
 var userCards = new Array();
 
 var UserBox = new Array(
-    {avatar:null,titile:null,chip:null,card:null},{avatar:null,titile:null,chip:null,card:null},
-        {avatar:null,titile:null,chip:null,card:null},{avatar:null,titile:null,chip:null,card:null},
-        {avatar:null,titile:null,chip:null,card:null},{avatar:null,titile:null,chip:null,card:null},
-        {avatar:null,titile:null,chip:null,card:null}
+    {avatar:null,titile:null,chip:null,card:null,scard:null},{avatar:null,titile:null,chip:null,card:null,scard:null},
+        {avatar:null,titile:null,chip:null,card:null,scard:null},{avatar:null,titile:null,chip:null,card:null,scard:null},
+        {avatar:null,titile:null,chip:null,card:null,scard:null},{avatar:null,titile:null,chip:null,card:null,scard:null},
+        {avatar:null,titile:null,chip:null,card:null,scard:null}
     );
 
 function displayPoint(x,y){
@@ -24,6 +24,7 @@ function userBoxVisible(seatno,opacity) {
     UserBox[seatno].titile.opacity=opacity;
     UserBox[seatno].chip.opacity=opacity;
     UserBox[seatno].card.opacity=opacity;
+    UserBox[seatno].scard.opacity=opacity;
 }
 
 function seatIn(seatno) {
@@ -31,6 +32,7 @@ function seatIn(seatno) {
     UserBox[seatno].titile.opacity=300;
     UserBox[seatno].chip.opacity=300;
     UserBox[seatno].card.opacity=0;
+    UserBox[seatno].scard.opacity=0;
 }
 
 function seatOut(seatno) {
@@ -38,6 +40,7 @@ function seatOut(seatno) {
     UserBox[seatno].titile.opacity=0;
     UserBox[seatno].chip.opacity=0;
     UserBox[seatno].card.opacity=0;
+    UserBox[seatno].scard.opacity=0;
 }
 
 function itItStage() {
@@ -53,6 +56,8 @@ function userBoxLoad() {
         avatar.scale=0.5;
 
         var card = cocoApp.addImage('img/cards/casino-back.png', medalPos[seatno].x, medalPos[seatno].y-100);
+        var scard = cocoApp.addImage('img/cards/back.png', medalPos[seatno].x, medalPos[seatno].y-100);
+
         var lblName = cocoApp.addLabel({string:"noname",fontName:"Arial",fontSize:26,fontColor:"WHITE" });
         lblName.position.x=medalPos[seatno].x;
         lblName.position.y=medalPos[seatno].y+60;
@@ -65,9 +70,9 @@ function userBoxLoad() {
         UserBox[seatno].card=card;
         UserBox[seatno].titile=lblName;
         UserBox[seatno].chip=lblChip;
+        UserBox[seatno].scard=scard;
         userBoxVisible(seatno,0);
     }
-
 }
 
 
@@ -75,8 +80,7 @@ function clearStage() {
 }
 
 function testShowCard(seatno) {
-;
-    var cardimg=['c1.jpg','c2.jpg','c2.jpg','c3.jpg','c3.jpg'];
+    var cardimg=['c1.jpg','c2.jpg','c3.jpg','c4.jpg','c5.jpg','c6.jpg','c7.jpg','c8.jpg'];
     var backcard=cocoApp.addImage('img/cards/back.png', medalPos[seatno].x, medalPos[seatno].y-100);
     var cardshape=cocoApp.addImage('img/cards/'+cardimg[seatno], medalPos[seatno].x, medalPos[seatno].y-100);
     cardshape.scale=0.3;
@@ -101,6 +105,7 @@ function processTableMessage(gameMessage) {
         case "readytable":
             renderTable('background');
             dealer = cocoApp.addImage('img/table/dealer-button.png', medalPos[0].x, medalPos[0].y-100);
+
             userBoxLoad();
             break;
         case "stagestart":
@@ -135,8 +140,10 @@ function processTableMessage(gameMessage) {
             */
             break;
         case"showcard":
+            var cardimg=['c1.jpg','c2.jpg','c3.jpg','c4.jpg','c5.jpg','c6.jpg','c7.jpg','c8.jpg'];
+            var cardshape=cocoApp.addImage('img/cards/'+cardimg[seatno], medalPos[seatno].x, medalPos[seatno].y-100);
+            cardshape.scale=0.3;
             break;
-
     }
 }
 
