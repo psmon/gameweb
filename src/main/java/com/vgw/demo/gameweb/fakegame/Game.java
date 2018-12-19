@@ -1,11 +1,9 @@
 package com.vgw.demo.gameweb.fakegame;
 
-import com.vgw.demo.gameweb.controler.WebSocketEventListener;
 import com.vgw.demo.gameweb.message.GameMessage;
 import com.vgw.demo.gameweb.message.SessionMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
@@ -13,7 +11,6 @@ import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.messaging.simp.SimpMessageType;
 import org.springframework.stereotype.Component;
 
-import javax.validation.constraints.Size;
 import java.util.*;
 
 @Component
@@ -184,7 +181,8 @@ public class Game extends Thread{
             message.setNum2(ply.getChips());
             aniDelay+=0.03f;
             // Todo: SeatOut for LoseMoney
-            send(ply,message);
+            //send(ply,message);
+            sendAll(message);
         }
     }
 

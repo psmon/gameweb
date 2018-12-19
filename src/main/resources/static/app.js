@@ -8,7 +8,7 @@ function setConnected(connected) {
     }
     else {
         $("#conversation").hide();
-        renderTable('intro');
+        sceneControler('intro');
     }
     $("#greetings").html("");
 }
@@ -75,6 +75,14 @@ function sendGameMsg() {
     )
 }
 
+function sendGameAction(action) {
+    var content = $('#gamemsg').val();
+    stompClient.send("/app/game.req",
+        {},
+        JSON.stringify({content: 'action',txt1:action.txt1,num1:action.num1,num2:action.num2, type: 'GAME'})
+    )
+}
+
 function showGreeting(message) {
     $("#greetings").append("<tr><td>" + message + "</td></tr>");
 }
@@ -89,8 +97,8 @@ function onMessageReceived(payload) {
     } else if (message.type == 'LEAVE') {
         showGreeting(message.sender + 'left!')
     } else if(message.type == 'GAME'){
-        processTableMessage(message);
-        showGreeting(message.content);
+        messageControler(message);
+        //showGreeting(message.content);
     } else{
         showGreeting(message.content);
     }
@@ -106,6 +114,6 @@ $(function () {
 
     $( "#demo1" ).click(function() { joinTable(1) });
     $( "#demo2" ).click(function() { seatTable() });
-    $( "#demo3" ).click(function() { renderTable('gameinit') });
+    $( "#demo3" ).click(function() { sceneControler('gameinit') });
 
 });
