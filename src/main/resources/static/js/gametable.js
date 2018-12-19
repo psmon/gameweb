@@ -253,34 +253,25 @@ function sceneControler(cmd1, cmd2) {
             }
 
             var colorList = ["black", "maroon", "green", "olive", "navy", "purple", "coral", "#A9A9A9", "#E9967A", "#2F4F4F"]
-            for (var i = 0; i < 10; i++) {
+            var intoTexts = "G^e^n^i^u^s^C^a^r^d".split("^");
+            for (var i = 0; i < intoTexts.length; i++) {
                 var curRanColor = get_random_color();
                 var label = cocoApp.addLabel({
-                    string: "Friends",
+                    string: intoTexts[i],
                     fontName: "Arial",
-                    fontSize: 26,
+                    fontSize: 50,
                     fontColor: curRanColor
                 });
-
-                var firstPos = {x: 70 + (i * 30), y: 90 + (i * 20)}
-                var secondPos = {x: 70 + ((30 * 20) - i * 30), y: 90 + (i * 20)}
-
+                //var firstPos = {x: 70 + ((30 * 20) - i * 30), y: 90 + (i * 20)}
+                var firstPos = {x:Math.floor((Math.random() * 300) + 50),y:Math.floor((Math.random() * 300) + 50)}
+                var secondPos = {x: 70 + (i * 50), y: 90 + (i * 20)}
                 label.position.x = firstPos.x;
                 label.position.y = firstPos.y;
-
-                var label2 = cocoApp.addLabel({
-                    string: "CARD",
-                    fontName: "Arial",
-                    fontSize: 26,
-                    fontColor: curRanColor
-                });
-                label2.position.x = secondPos.x;
-                label2.position.y = secondPos.y;
+                label.angle=  Math.floor((Math.random() * 100) + 50)
 
                 var easeOptList = [{type: "EaseBounceOut"}, {type: "EaseInOut", rate: 3}, {type: "EaseInOut", rate: 3}];
-                var easeOpt = easeOptList[0];
-                label.moveTo({x: secondPos.x, y: secondPos.y, duration: 3, delay: 0.5, ease: easeOpt});
-                label2.moveTo({x: firstPos.x, y: firstPos.y, duration: 3, delay: 0.5, ease: easeOpt});
+                var easeOpt = easeOptList[i%3];
+                label.moveTo({x: secondPos.x, y: 200, duration: 3, delay: 0.1, ease: easeOpt,angle:720});
             }
             break;
         case "background":
