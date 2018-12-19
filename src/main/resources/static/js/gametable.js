@@ -4,6 +4,8 @@ var _seqCount=0;
 var medalPos =new Array({x:50,y:400},{x:150,y:450},{x:270,y:500},{x:420,y:500},{x:550,y:500},{x:650,y:450},{x:750,y:400});
 var playerinfos = new Array();
 var userCards = new Array();
+var yourCard;
+
 
 var UserBox = new Array(
     {avatar:null,titile:null,chip:null,card:null,scard:null},{avatar:null,titile:null,chip:null,card:null,scard:null},
@@ -27,12 +29,18 @@ function userBoxVisible(seatno,opacity) {
     UserBox[seatno].scard.opacity=opacity;
 }
 
-function seatIn(seatno) {
+function seatIn(gameMessage) {
+    var seatno=gameMessage.seatno;
+    var username=gameMessage.sender;
+    var chip=gameMessage.num1;
     UserBox[seatno].avatar.opacity=100;
     UserBox[seatno].titile.opacity=300;
     UserBox[seatno].chip.opacity=300;
     UserBox[seatno].card.opacity=0;
     UserBox[seatno].scard.opacity=0;
+    UserBox[seatno].titile.string=username;
+    UserBox[seatno].chip.string=chip;
+
 }
 
 function seatOut(seatno) {
@@ -72,6 +80,10 @@ function userBoxLoad() {
         UserBox[seatno].chip=lblChip;
         UserBox[seatno].scard=scard;
         userBoxVisible(seatno,0);
+
+        var lblInfo1 = cocoApp.addLabel({string:"YourCard",fontName:"Arial",fontSize:26,fontColor:"WHITE" });
+        lblInfo1.position.x=50;
+        lblInfo1.position.y=30;
     }
 }
 
@@ -105,14 +117,13 @@ function processTableMessage(gameMessage) {
         case "readytable":
             renderTable('background');
             dealer = cocoApp.addImage('img/table/dealer-button.png', medalPos[0].x, medalPos[0].y-100);
-
             userBoxLoad();
             break;
         case "stagestart":
             itItStage();
             break;
         case "seat":
-            seatIn(seatno);
+            seatIn(gameMessage);
             break;
         case "seatout":
             seatOut(seatno);
@@ -141,8 +152,14 @@ function processTableMessage(gameMessage) {
             break;
         case"showcard":
             var cardimg=['c1.jpg','c2.jpg','c3.jpg','c4.jpg','c5.jpg','c6.jpg','c7.jpg','c8.jpg'];
-            var cardshape=cocoApp.addImage('img/cards/'+cardimg[seatno], medalPos[seatno].x, medalPos[seatno].y-100);
+
+            if(yourCard!=null){
+                //Todo : Remove Instance
+                yourCard.visible=false;
+            }
+            var cardshape=cocoApp.addImage('img/cards/'+ cardimg[gameMessage.num1], 50, 100);
             cardshape.scale=0.3;
+            yourCard=cardshape;
             break;
     }
 }

@@ -83,13 +83,14 @@ public class Game extends Thread{
         turnSeq=1;
         int playNum = table.getPlayList().size();
         gameCard.clear();
-
         Random random = new Random();
-        wiinerCard = random.nextInt(8)+1;
+        int maxCard=7;
+
+        wiinerCard = random.nextInt(maxCard);
         List<Integer> otherCards = new ArrayList<>();
         //Simbple Card Generator
         while (true){
-            Integer otherCArd = random.nextInt(8)+1;
+            Integer otherCArd = random.nextInt(maxCard);
             if(wiinerCard!=otherCArd) otherCards.add(otherCArd);
             if(otherCards.size()==3) break;
         }
@@ -240,32 +241,36 @@ public class Game extends Thread{
     @Override
     public void run() {
         try {
-
             while( true ){
-                if(gameState==GameState.CLOSE) break;
-                waitTime(100);
-                if(loopCnt %100==0){
-                    chkGame(false);
-                }
-
-                if(isStartGame() && loopCnt %10==0 ){
-                    stagestart();
-                    logger.info("Game Bet Card");
-                    betting();
-                    logger.info("Game Ready Card");
-                    readyCard();
-                    for(int turnCnt=0;turnCnt<maxTurn;turnCnt++){
-                        turn(turnCnt);
+                try{
+                    if(gameState==GameState.CLOSE) break;
+                    waitTime(100);
+                    if(loopCnt %100==0){
+                        chkGame(false);
                     }
-                    gameResult();
+
+                    if(isStartGame() && loopCnt %10==0 ){
+                        stagestart();
+                        logger.info("Game Bet Card");
+                        betting();
+                        logger.info("Game Ready Card");
+                        readyCard();
+                        for(int turnCnt=0;turnCnt<maxTurn;turnCnt++){
+                            turn(turnCnt);
+                        }
+                        gameResult();
+                        gameState=GameState.WAIT;
+                    }
+                }catch (Exception e){
+                    logger.error("Error-ResumeGame:"+e.toString());
                     gameState=GameState.WAIT;
                 }
-
                 loopCnt++;
                 if(loopCnt ==1000000000) loopCnt =0;
             }
         }catch (Exception e){
-            logger.error("ErrorGame:"+e.toString());
+            logger.error("Error-Skip..Game:"+e.toString());
+            gameState=GameState.CLOSE;
         }
     }
 
