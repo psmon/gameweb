@@ -164,6 +164,7 @@ public class Game extends Thread{
     protected void stagestart(){
         gameState=GameState.START;
         GameMessage message = new GameMessage();
+        message.setType(GameMessage.MessageType.GAME);
         message.setContent("stagestart");
         sendAll(message);
     }
@@ -174,6 +175,7 @@ public class Game extends Thread{
         for(Player ply:table.getPlayList()){
             ply.updateChips(-betAmmount);
             GameMessage message = new GameMessage();
+            message.setType(GameMessage.MessageType.GAME);
             message.setSeatno(ply.getSeatNo());
             message.setContent("bet");
             message.setDelay(aniDelay);
@@ -197,7 +199,11 @@ public class Game extends Thread{
 
     protected void gameResult(){
         gameState=GameState.RESULT;
-
+        GameMessage gameMessage = new GameMessage();
+        gameMessage.setContent("gameresult");
+        gameMessage.setType(GameMessage.MessageType.GAME);
+        //Todo: GameResult
+        sendAll(gameMessage);
         waitTime(7000); //Result Time..
     }
 
@@ -250,13 +256,17 @@ public class Game extends Thread{
                     if(isStartGame() && loopCnt %10==0 ){
                         stagestart();
                         logger.info("Game Bet Card");
+                        waitTime(1000);
                         betting();
+                        waitTime(5000);
                         logger.info("Game Ready Card");
                         readyCard();
                         for(int turnCnt=0;turnCnt<maxTurn;turnCnt++){
                             turn(turnCnt);
                         }
+                        waitTime(5000);
                         gameResult();
+                        waitTime(5000);
                         gameState=GameState.WAIT;
                     }
                 }catch (Exception e){

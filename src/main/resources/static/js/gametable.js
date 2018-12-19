@@ -7,6 +7,8 @@ var userCards = new Array();
 var yourCard;
 var needSelectCard=false;
 var mySeatNo=0;
+var betPotList=[];
+var backGround;
 
 
 var UserBox = new Array(
@@ -45,11 +47,48 @@ function seatIn(gameMessage) {
     UserBox[seatno].chip.string=chip;
 }
 
-function bettting() {
+function winner(gameMessage) {
+    //TODO : using servervalue
+    var seatno=1;
+    if(betPotList!=null){
+        //TODO : Remove Chips
+        var idx=0;
+        betPotList.forEach(function(chipimg) {
+            var easeOptList = [{type: "EaseInOut", rate: 3}, {type: "EaseInOut", rate: 3},{type: "EaseBounceOut"}];
+            var easeOpt2 = easeOptList[1];
+            var tx = medalPos[seatno].x - 30  + Math.floor((Math.random() * 10) + 10);
+            var ty = medalPos[seatno].y - 20  + Math.floor((Math.random() * 10) + 10);;
+            chipimg.opacity=100
+            chipimg.moveTo({x: tx, y: ty, duration: 1 ,delay:0.2,ease:easeOpt2,angle:360*3,opacity:0 });
+            idx++;
+        });
+    }
+}
+
+function betting(gameMessage) {
     var seatno=gameMessage.seatno;
     var chip=gameMessage.num1;
     var total=gameMessage.num2;
+    var delay=gameMessage.delay*2;
     UserBox[seatno].chip.string=total;
+
+    var chipCnt =  chip/5;
+    var delayAny=0.0;
+    for(var idx=0;idx<chipCnt;idx++){
+        var chipurl='img/chips/chip5.png';
+        var chipimg = cocoApp.addImage(chipurl, medalPos[seatno].x, medalPos[seatno].y);
+        var easeOptList = [{type: "EaseInOut", rate: 3}, {type: "EaseInOut", rate: 3},{type: "EaseBounceOut"}];
+        var easeOpt = easeOptList[3];
+        chipimg.scale=0.5;
+        var easeOpt2 = easeOptList[ idx%3 ];
+        var tx = Math.floor((Math.random() * 100) + 350);
+        var ty = Math.floor((Math.random() * 100) + 250);
+        var angle1 = Math.floor((Math.random() * 100) + 50)
+        var angle2 = Math.floor((Math.random() * 500) + 50)
+        chipimg.moveTo({x: tx, y: ty, duration: 0.5, delay: delay+delayAny,ease:easeOpt2,angle:angle2 });
+        betPotList.push(chipimg);
+        delayAny+=0.2;
+    }
 }
 
 
@@ -75,10 +114,17 @@ function action(gameMessage) {
 // ### First Load at Connected
 
 function itItStage() {
-    for(var seatno;seatno<7;seatno++){
+    for(var seatno=0;seatno<7;seatno++){
         UserBox[seatno].card.opacity=0;
     }
     needSelectCard=false;
+    if(betPotList!=null){
+        //TODO : Remove Chips
+        betPotList.forEach(function(element) {
+            element.visible=false
+        });
+        betPotList=[];
+    }
 }
 
 
@@ -183,7 +229,7 @@ function messageControler(gameMessage) {
             seatOut(seatno);
             break;
         case "bet":
-            bettting(gameMessage);
+            betting(gameMessage);
             break;
 
         case "action":
@@ -223,6 +269,7 @@ function messageControler(gameMessage) {
             yourCard=cardshape;
             break;
         case "gameresult":
+            winner(gameMessage);
             break;
 
     }
@@ -241,7 +288,8 @@ function sceneControler(cmd1, cmd2) {
             cocoApp._layer.mouseDragged = null;
             director.backgroundColor = "#2ECCFA";
             var back = cocoApp.addImage('img/introback.png', 330, 450);
-            back.scale = 1.2
+            back.scale = 1.2;
+            backGround=back;
 
             var get_random_color = function () {
                 var letters = 'ABCDE'.split('');
@@ -272,6 +320,8 @@ function sceneControler(cmd1, cmd2) {
                 var easeOptList = [{type: "EaseBounceOut"}, {type: "EaseInOut", rate: 3}, {type: "EaseInOut", rate: 3}];
                 var easeOpt = easeOptList[i%3];
                 label.moveTo({x: secondPos.x, y: 200, duration: 3, delay: 0.1, ease: easeOpt,angle:720});
+
+
             }
             break;
         case "background":
