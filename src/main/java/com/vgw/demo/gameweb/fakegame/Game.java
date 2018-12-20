@@ -22,7 +22,7 @@ public class Game extends Thread{
         WAIT,START,READY, CARD1,BET,TURN1,TURN2 ,RESULT,CLOSE
     };
 
-    Queue<SessionMessage>  gameMessages;
+    Queue<SessionMessage> actionMessage;
     List<Integer>  gameCard;
 
     private int loopCnt =0;
@@ -38,12 +38,12 @@ public class Game extends Thread{
     private static final Logger logger = LoggerFactory.getLogger(Lobby.class);
 
     public void addGameMessage(SessionMessage msg){
-        gameMessages.add(msg);
+        actionMessage.add(msg);
     }
 
     protected SessionMessage peekGameMessage(){
-        if(gameMessages.size()>0)
-            return gameMessages.peek();
+        if(actionMessage.size()>0)
+            return actionMessage.peek();
         else
             return null;
     }
@@ -53,7 +53,7 @@ public class Game extends Thread{
         this.table = table;
         turnSeq=0;
         maxTurn=2;
-        gameMessages = new ArrayDeque<>();
+        actionMessage = new ArrayDeque<>();
         gameCard = new ArrayList<>();
         chkGame(false);
         betAmmount=10;
@@ -98,6 +98,9 @@ public class Game extends Thread{
         // 6 = 1,2,3
         // 7 = 1,2,2,2
         switch (playNum){
+            case 2: // for Only Test
+                gameCard.add(wiinerCard);
+                gameCard.add(otherCards.get(0));
             case 3:
                 gameCard.add(wiinerCard);
                 gameCard.add(otherCards.get(0));
@@ -163,6 +166,7 @@ public class Game extends Thread{
 
     protected void stagestart(){
         gameState=GameState.START;
+        totalBetAmmount=0;
         GameMessage message = new GameMessage();
         message.setType(GameMessage.MessageType.GAME);
         message.setContent("stagestart");
@@ -181,19 +185,61 @@ public class Game extends Thread{
             message.setDelay(aniDelay);
             message.setNum1(betAmmount);
             message.setNum2(ply.getChips());
-            aniDelay+=0.03f;
+            totalBetAmmount+=betAmmount;
+            aniDelay+=0.3f;
             // Todo: SeatOut for LoseMoney
             //send(ply,message);
             sendAll(message);
         }
     }
 
+    protected void reqAction(){
+        int timeBank=5;
+        int idx=0;
+        for(Player ply:table.getPlayList()){
+            if(idx>0)   timeBank=1; //Test...
+            idx=idx+1;
+            GameMessage actionReq = new GameMessage();
+            actionReq.setType(GameMessage.MessageType.GAME);
+            actionReq.setContent("action");
+            send(ply,actionReq);
+            GameMessage actionRes = waitForAction(ply,timeBank);
+
+            boolean isChangeCard=false;
+            if(actionRes!=null){
+                if(actionRes.getContent().equals("change")){
+                    int srcSeatNo=ply.getSeatNo();
+                    int targetSeatNo=actionRes.getNum1();
+                    int tmpcard = gameCard.get(srcSeatNo);
+                    gameCard.set(srcSeatNo, gameCard.get(targetSeatNo));
+                    gameCard.set(targetSeatNo,tmpcard);
+                    isChangeCard=true;
+                    GameMessage changedInfo = new GameMessage();
+                    changedInfo.setType(GameMessage.MessageType.GAME);
+                    changedInfo.setContent("changed");
+                    changedInfo.setSeatno(ply.getSeatNo());
+                    changedInfo.setNum1( gameCard.get(ply.getSeatNo()));
+                    changedInfo.setNum2( targetSeatNo );
+                    send(ply,changedInfo);
+                }
+            }
+            if(!isChangeCard){
+                GameMessage timeOutMessage=new GameMessage();
+                timeOutMessage.setType(GameMessage.MessageType.GAME);
+                timeOutMessage.setContent("actionend");
+                send(ply,timeOutMessage);
+            }
+        }
+    }
+
     protected void turn(int turnSeq){
         this.turnSeq=turnSeq;
+        actionMessage.clear();
+        logger.info("===== turn:"+turnSeq);
         if(turnSeq==0){
-
+            reqAction();
         }else if(turnSeq==1){
-
+            reqAction();
         }
     }
 
@@ -214,20 +260,22 @@ public class Game extends Thread{
         }
     }
 
-    protected GameMessage waitForAction(Player ply,int waitTime){
+    protected GameMessage waitForAction(Player ply,int waitCnt){
         GameMessage action = null;
-        for(int i=0;i<waitTime;i++){
-            SessionMessage peekMsg=gameMessages.peek();
-            if(peekMsg.session==ply.getSession() && peekMsg.gameMessage.equals("GAME") ){
-                gameProcess(peekMsg);
-                action=peekMsg.gameMessage;
-                break;
-            }else {
-                otherProcess(peekMsg);
+        for(int i=0;i<waitCnt;i++){
+            SessionMessage peekMsg= actionMessage.peek();
+            if(peekMsg!=null){
+                if(peekMsg.session==ply.getSession() && peekMsg.gameMessage.equals("GAME") ){
+                    gameProcess(peekMsg);
+                    action=peekMsg.gameMessage;
+                    break;
+                }else {
+                    otherProcess(peekMsg);
+                }
             }
-            waitTime(waitTime);
-
+            waitTime(1000);
         }
+        actionMessage.clear();
         return action;
     }
 

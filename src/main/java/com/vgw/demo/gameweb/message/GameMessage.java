@@ -16,6 +16,7 @@ public class GameMessage {
         CHAT,
         VIEW,
         JOIN,
+        ACTION,
         GAME,
         LEAVE
     }

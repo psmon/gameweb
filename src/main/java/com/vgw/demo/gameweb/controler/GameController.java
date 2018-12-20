@@ -55,8 +55,16 @@ public class GameController {
                     lobby.getTable(tableNo).seatUser(player);
                 }
                 break;
-            }
 
+            }
+            return null;
+        }
+        else if(gameMessage.getType()== GameMessage.MessageType.ACTION){
+            SessionMessage sessionMessage = new SessionMessage();
+            sessionMessage.session=userSession;
+            sessionMessage.name=userName;
+            sessionMessage.gameMessage=gameMessage;
+            lobby.getTable(tableNo).getGame().addGameMessage(sessionMessage);
             return null;
         }
 

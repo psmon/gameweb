@@ -9,7 +9,9 @@ var needSelectCard=false;
 var mySeatNo=0;
 var betPotList=[];
 var backGround;
+var lblActionInfo;
 
+var avableSeat=[false,false,false,false,false,false,false]
 
 var UserBox = new Array(
     {avatar:null,titile:null,chip:null,card:null,scard:null,cardrect:null},{avatar:null,titile:null,chip:null,card:null,scard:null,cardrect:null},
@@ -45,6 +47,7 @@ function seatIn(gameMessage) {
     UserBox[seatno].scard.opacity=0;
     UserBox[seatno].titile.string=username;
     UserBox[seatno].chip.string=chip;
+    avableSeat[seatno]=true;
 }
 
 function winner(gameMessage) {
@@ -98,13 +101,13 @@ function seatOut(seatno) {
     UserBox[seatno].chip.opacity=0;
     UserBox[seatno].card.opacity=0;
     UserBox[seatno].scard.opacity=0;
+    avableSeat[seatno]=false;
 }
 
 // ### GameAction ( Server -> Client )
 function action(gameMessage) {
-    var seatno=gameMessage.seatno;
-    var actionName = gameMessage.txt1;
-
+    needSelectCard=true;
+    lblActionInfo.string="Seclect Your Card(don't chage) Or Opernet Card"
 }
 
 // ## SendGameAction ( Client -> Server )
@@ -127,24 +130,34 @@ function itItStage() {
     }
 }
 
-
 function textInfoLoad() {
     var lblInfo1 = cocoApp.addLabel({string:"YourCard",fontName:"Arial",fontSize:26,fontColor:"WHITE" });
+    lblActionInfo = cocoApp.addLabel({string:"...",fontName:"Arial",fontSize:26,fontColor:"WHITE" });
     lblInfo1.position.x=50;
     lblInfo1.position.y=30;
+    lblActionInfo.position.x=100;
+    lblActionInfo.position.y=200;
+
 }
 
 function changeCard(targetSeatNo) {
-    needSelectCard=true;    //Test
-    if(needSelectCard && targetSeatNo!=mySeatNo){
-        var myPos={x:medalPos[mySeatNo].x,y:medalPos[mySeatNo].y-100 };
-        var targetPos={x:medalPos[targetSeatNo].x,y:medalPos[targetSeatNo].y-100 };
-        var easeOptList = [{type: "EaseBounceOut"}, {type: "EaseInOut", rate: 3}, {type: "EaseInOut", rate: 3}];
-        var easeOpt = easeOptList[0]
-        var easeOpt2 = easeOptList[1]
-        UserBox[mySeatNo].card.moveTo({x: targetPos.x, y: targetPos.y, duration: 2, delay: 0.5,ease:easeOpt });
-        UserBox[targetSeatNo].card.moveTo({x: myPos.x, y: myPos.y, duration: 2, delay: 1.0,ease:easeOpt2 });
+    if(avableSeat[targetSeatNo]==false) return;
+
+    if(needSelectCard){
+        if(targetSeatNo==mySeatNo){
+            sendGameAction({content:"nochange",num1:0,num2:0})
+        }else{
+            var myPos={x:medalPos[mySeatNo].x,y:medalPos[mySeatNo].y-100 };
+            var targetPos={x:medalPos[targetSeatNo].x,y:medalPos[targetSeatNo].y-100 };
+            var easeOptList = [{type: "EaseBounceOut"}, {type: "EaseInOut", rate: 3}, {type: "EaseInOut", rate: 3}];
+            var easeOpt = easeOptList[0]
+            var easeOpt2 = easeOptList[1]
+            UserBox[mySeatNo].card.moveTo({x: targetPos.x, y: targetPos.y, duration: 2, delay: 0.5,ease:easeOpt });
+            UserBox[targetSeatNo].card.moveTo({x: myPos.x, y: myPos.y, duration: 2, delay: 1.0,ease:easeOpt2 });
+            sendGameAction({content:"change",num1:targetSeatNo,num2:0})
+        }
     }
+    needSelectCard=false;
 }
 
 function userBoxLoad() {
@@ -167,13 +180,18 @@ function userBoxLoad() {
 
         var clickArea = cocoApp.addImage('img/cards/casino-back.png', medalPos[seatno].x, medalPos[seatno].y-100,true);
         clickArea.seatno=seatno;
-        clickArea.children[0].opacity=0;
-
+        clickArea.children[0].opacity=1;
         UserBox[seatno].cardrect=clickArea;
-        UserBox[seatno].cardrect.onMouseUp = function(event){
-            console.log("Clicked:"+this.seatno)
-            changeCard(this.seatno)
-        }
+
+        //clickArea.onMouseUp = function(event){
+        //}
+        UserBox[seatno].cardrect.onMouseUp = (function(event) {
+            return function(event) {
+                console.log("Clicked:"+this.seatno)
+                changeCard(this.seatno)
+            }
+        })();
+
 
         UserBox[seatno].avatar=avatar;
         UserBox[seatno].card=card;
@@ -221,6 +239,7 @@ function messageControler(gameMessage) {
             break;
         case "stagestart":
             itItStage();
+            lblActionInfo.string="stage start"
             break;
         case "seat":
             seatIn(gameMessage);
@@ -230,6 +249,7 @@ function messageControler(gameMessage) {
             break;
         case "bet":
             betting(gameMessage);
+            lblActionInfo.string="AutoBet:10"
             break;
 
         case "action":
@@ -238,27 +258,23 @@ function messageControler(gameMessage) {
         case "dealer":
             //dealer.moveTo({x:medalPos[0].x,y:medalPos[0].y-100,duration:2,delay:aniDelay*0.1,angle:90,opacity:50,scale:0.5});
             dealer.moveTo({x:medalPos[seatno].x,y:medalPos[seatno].y-200,duration:1,delay:aniDelay*0.1 });
-            setTimeout(function(){
-                testCardChange()
-            }, 4000);
             break;
         case "card":
+            lblActionInfo.string="Card...";
             UserBox[seatno].card.opacity=300;
             UserBox[seatno].card.position.x=720;
             UserBox[seatno].card.position.y=100;
             UserBox[seatno].card.angle=70;
             UserBox[seatno].card.moveTo({x:medalPos[seatno].x,y:medalPos[seatno].y-100,duration:0.5,delay:aniDelay,angle:360*3 });
-            /*
-            var card = cocoApp.addImage('img/cards/casino-back.png', 720, 100);
-            card.moveTo({x:medalPos[seatno].x,y:medalPos[seatno].y-100,duration:0.5,delay:aniDelay*0.5,angle:180 });
-            userCards.push(card);
-            setTimeout(function(){
-                testShowCard(seatno)
-            }, 9000 +(seatno+1*500));
-            */
             break;
         case "showcard":
-            mySeatNo=seatno;
+        case "changed":
+            if(gameMessage.content=="changed")
+                lblActionInfo.string="CardChange";
+            else{
+                lblActionInfo.string="CardSetting";
+                mySeatNo=seatno;
+            }
             var cardimg=['c1.jpg','c2.jpg','c3.jpg','c4.jpg','c5.jpg','c6.jpg','c7.jpg','c8.jpg'];
             if(yourCard!=null){
                 //Todo : Remove Instance
@@ -268,7 +284,11 @@ function messageControler(gameMessage) {
             cardshape.scale=0.3;
             yourCard=cardshape;
             break;
+        case "actionend":
+            lblActionInfo.string="";
+            break;
         case "gameresult":
+            lblActionInfo.string="GameResult";
             winner(gameMessage);
             break;
 

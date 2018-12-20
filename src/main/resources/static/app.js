@@ -79,7 +79,7 @@ function sendGameAction(action) {
     var content = $('#gamemsg').val();
     stompClient.send("/app/game.req",
         {},
-        JSON.stringify({content: 'action',txt1:action.txt1,num1:action.num1,num2:action.num2, type: 'GAME'})
+        JSON.stringify({content: action.content,num1:action.num1,num2:action.num2, type: 'ACTION'})
     )
 }
 
