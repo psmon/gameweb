@@ -217,11 +217,11 @@ public class Game extends Thread{
     }
 
     protected void reqAction(){
-        int timeBank=3;
+        int timeBank=12;
         int idx=0;
         boolean bBotMode=true;
         for(Player ply:table.getPlayList()){
-            if(idx>0 && bBotMode)   timeBank=1; //Test for AI Action
+            if(idx>0 && bBotMode)   timeBank=8; //Test for AI Action
             idx=idx+1;
             GameMessage actionReq = new GameMessage();
             actionReq.setType(GameMessage.MessageType.GAME);
