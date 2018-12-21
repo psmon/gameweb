@@ -8,17 +8,23 @@ function setConnected(connected) {
     }
     else {
         $("#conversation").hide();
+        sceneControler('intro');
     }
     $("#greetings").html("");
 }
 
 function connect() {
-    var socket = new SockJS('/gs-guide-websocket');
+    var socket = new SockJS('/ws');
     stompClient = Stomp.over(socket);
     stompClient.connect({}, function (frame) {
         setConnected(true);
         console.log('Connected: ' + frame);
+
+        // for broad cast
         stompClient.subscribe('/topic/public', onMessageReceived );
+
+        // for send to some
+        stompClient.subscribe('/user/topic/public', onMessageReceived );
 
         var username=$("#name").val();
         if(username.length<1){username="Unknown"};
@@ -38,11 +44,42 @@ function disconnect() {
     console.log("Disconnected");
 }
 
-function sendGameMsg() {
+function joinTable(tableNo) {
+    stompClient.send("/app/game.req",
+        {},
+        JSON.stringify({content: 'join',num1:tableNo, type: 'GAME'})
+    )
+}
+
+function seatTable() {
+    stompClient.send("/app/game.req",
+        {},
+        JSON.stringify({content: 'seat', type: 'GAME'})
+    )
+}
+
+
+function sendChatMsg() {
     var content = $('#gamemsg').val();
     stompClient.send("/app/hello",
         {},
         JSON.stringify({content: content, type: 'CHAT'})
+    )
+}
+
+function sendGameMsg() {
+    var content = $('#gamemsg').val();
+    stompClient.send("/app/game.req",
+        {},
+        JSON.stringify({content: content, type: 'GAME'})
+    )
+}
+
+function sendGameAction(action) {
+    var content = $('#gamemsg').val();
+    stompClient.send("/app/game.req",
+        {},
+        JSON.stringify({content: action.content,num1:action.num1,num2:action.num2, type: 'ACTION'})
     )
 }
 
@@ -55,12 +92,15 @@ function onMessageReceived(payload) {
 
     var messageElement = document.createElement('li');
 
-    if(message.type === 'JOIN') {
-        showGreeting(message.sender + '-- joined!')
-    } else if (message.type === 'LEAVE') {
+    if(message.type == 'JOIN') {
+        showGreeting('Welcome ' + message.sender)
+    } else if (message.type == 'LEAVE') {
         showGreeting(message.sender + 'left!')
-    } else {
-        showGreeting(message.content)
+    } else if(message.type == 'GAME'){
+        messageControler(message);
+        //showGreeting(message.content);
+    } else{
+        showGreeting(message.content);
     }
 }
 
@@ -72,11 +112,8 @@ $(function () {
     $( "#disconnect" ).click(function() { disconnect(); });
     $( "#send" ).click(function() { sendGameMsg(); });
 
-    $( "#demo1" ).click(function() { runDemo(cocoApp,'seqTo'); });
-    $( "#demo2" ).click(function() { runDemo(cocoApp,'EasyIn'); });
-    $( "#demo3" ).click(function() { runDemo(cocoApp,'EaseInOut'); });
-    $( "#demo4" ).click(function() { runDemo(cocoApp,'EaseBounceOut'); });
-    $( "#demo5" ).click(function() { runDemo(cocoApp,'clickEvent'); });
-
+    $( "#demo1" ).click(function() { joinTable(1) });
+    $( "#demo2" ).click(function() { seatTable() });
+    $( "#demo3" ).click(function() { sceneControler('gameinit') });
 
 });

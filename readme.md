@@ -1,37 +1,36 @@
 # PSMON's LightWeight WebGame Kit
 
-- git : https://github.com/psmon/gameweb
+- run : mvn spring-boot:run
 - launchurl : http://localhost:8080/
 
 ## Application Layout
 - controller : endpoint for ws
-- entity : local db
-- game : game logic
+- fakegame : sample server logic
 - message : realtime game message
-- fakegame : test object (without process,just obj for websock)
-- static : html5 client resources
-
-master repository does not have game logic. If you have a minimal kit for multiplayer and you have a game idea, you can start off with the master branch
-
+- static : html5 client resources ( pure javascript )
 
 ## Server
 
 spring boot 2 + websocket
 
-We configured only the minimum web socket connection network. Game logic can be filled in by you.
+This allows you to learn basic web socket handles for multiplayer.
+
+There is a simple code to work with, but it is a sample code that multiplayer works. Fill in your ideas in a more advanced way.
 
 ![...](doc/ws-server.png)
 
 ## Client
 
-pscocos : A long time ago, a legacy canvas library that modified cocos 2d.js by psmon
+pscocos : legacy canvas library that modified cocos 2d.js by psmon -http://psmon.x-y.net/pscoco/sample.html
 
-If you want to create more complex and colorful games. Convert html5 canvas and jquery to modern development
-
-doc : http://psmon.x-y.net/pscoco/sample.html
+    This game demo is written in the old Cansvas module and pure JavaScript.
+    If you want to create more complex and colorful games. 
+    We recommend using the TypeScript or better Canvas module.
 
 ## Large capacity distributed processing system
 
-Prototypes created here can be mass-processed using the following techniques.
+The server module is written in a simple threaded model. If you want distributed applications, 
+use more advanced messages and Dispatcher
 
+Large capacity processing is being prepared in the next corner.
 url : https://github.com/psmon/springcloud

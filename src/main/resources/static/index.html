@@ -9,12 +9,13 @@
     <script src="/webjars/stomp-websocket/stomp.min.js"></script>
     <script src="/js/cocos2d-beta2.js"></script>
     <script src="/js/pscoco.js"></script>
-    <script src="/js/demo.js"></script>
+    <script src="/js/gametable.js"></script>
     <script type="text/javascript">
         var cocoApp=null;
         $(document).ready(function(){
             cocoApp= new Application('psmon-demo',"gray");
             cocoApp.run();
+            sceneControler('intro');
             //runDemo(cocoApp,'rainy');
         })
     </script>
@@ -23,14 +24,15 @@
 </head>
 <body>
 
-<div id="psmon-demo" style="width: 600px; height: 480px;float: left;"></div>
+<div id="psmon-demo" style="width: 800px; height: 600px;float: left;"></div>
 
 <div id="main-content" class="container">
     <div class="row">
         <div class="col-md-6">
             <form class="form-inline">
                 <div class="form-group">
-                    <label for="connect">WebSocket connection:</label>
+                    <label for="name">What is your name?</label>
+                    <input type="text" id="name" class="form-control" placeholder="Your name here...">
                     <button id="connect" class="btn btn-default" type="submit">Connect</button>
                     <button id="disconnect" class="btn btn-default" type="submit" disabled="disabled">Disconnect
                     </button>
@@ -40,18 +42,15 @@
         <div class="col-md-6">
             <form class="form-inline">
                 <div class="form-group">
-                    <label for="name">What is your name?</label>
-                    <input type="text" id="name" class="form-control" placeholder="Your name here...">
                     <input type="text" id="gamemsg" class="form-control" placeholder="Game Message here...">
-
                 </div>
                 <button id="send" class="btn btn-default" type="submit">Send</button>
             </form>
         </div>
     </div>
     <div class="row">
-        <button id="demo1" class="btn btn-default" >demo1</button>
-        <button id="demo2" class="btn btn-default" >demo2</button>
+        <button id="demo1" class="btn btn-default" >Join-Game1</button>
+        <button id="demo2" class="btn btn-default" >Seat</button>
         <button id="demo3" class="btn btn-default" >demo3</button>
         <button id="demo4" class="btn btn-default" >demo4</button>
         <button id="demo5" class="btn btn-default" >demo5</button>

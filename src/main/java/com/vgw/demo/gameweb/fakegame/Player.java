@@ -4,12 +4,12 @@ import java.security.Principal;
 
 public class Player {
     private String  session;
-
     private String id;
     private String name;
+    private int totalMoney;
     private int chips;
     private int card;
-
+    private int seatNo;
 
     public String getId() {
         return id;
@@ -35,6 +35,9 @@ public class Player {
         this.chips = chips;
     }
 
+    public void updateChips(int amount){
+        chips+=amount;
+    }
     public int getCard() {
         return card;
     }
@@ -49,5 +52,21 @@ public class Player {
 
     public void setSession(String session) {
         this.session = session;
+    }
+
+    public int getTotalMoney() {
+        return totalMoney;
+    }
+
+    public void setTotalMoney(int totalMoney) {
+        this.totalMoney = totalMoney;
+    }
+
+    public int getSeatNo() {
+        return seatNo;
+    }
+
+    public void setSeatNo(int seatNo) {
+        this.seatNo = seatNo;
     }
 }

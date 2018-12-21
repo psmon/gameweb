@@ -16,9 +16,17 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
         config.setApplicationDestinationPrefixes("/app");
     }
 
+    /*
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
-        registry.addEndpoint("/gs-guide-websocket").withSockJS();
-    }
+        registry.addEndpoint("/ws").withSockJS();
+    }*/
 
+    @Override
+    public void registerStompEndpoints(StompEndpointRegistry stompEndpointRegistry) {
+        stompEndpointRegistry
+                .addEndpoint("/ws") // Set websocket endpoint to connect to
+                .setHandshakeHandler(new CustomHandshakeHandler()) // Set custom handshake handler
+                .withSockJS();
+    }
 }

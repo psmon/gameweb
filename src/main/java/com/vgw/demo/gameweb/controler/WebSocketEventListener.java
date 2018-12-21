@@ -23,22 +23,39 @@ public class WebSocketEventListener {
     @Autowired
     private SimpMessageSendingOperations messagingTemplate;
 
+
+
     @EventListener
     public void handleWebSocketConnectListener(SessionConnectedEvent event) {
         logger.info("Received a new web socket connection");
+        StompHeaderAccessor headerAccessor = StompHeaderAccessor.wrap(event.getMessage());
+        String sessionId = headerAccessor.getUser().getName();
+
+
+    }
+
+    @EventListener
+    void handleSessionConnectedEvent(SessionConnectedEvent event) {
+        // Get Accessor
+        StompHeaderAccessor sha = StompHeaderAccessor.wrap(event.getMessage());
+        String sessionId = sha.getUser().getName();
+        lobby.addSender(sessionId,messagingTemplate);
+        int x=999;
     }
 
     @EventListener
     public void handleWebSocketDisconnectListener(SessionDisconnectEvent event) {
         StompHeaderAccessor headerAccessor = StompHeaderAccessor.wrap(event.getMessage());
-
         String username = (String) headerAccessor.getSessionAttributes().get("username");
+        String session = headerAccessor.getUser().getName();
+
         if(username != null) {
             logger.info("User Disconnected : " + username);
             GameMessage gameMessage = new GameMessage();
             gameMessage.setType(GameMessage.MessageType.LEAVE);
             gameMessage.setSender(username);
-            messagingTemplate.convertAndSend("/topic/public", gameMessage);
+            //messagingTemplate.convertAndSend("/topic/public", gameMessage);
+            lobby.removeSender(session);
         }
     }
 

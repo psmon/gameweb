@@ -4,11 +4,20 @@ public class GameMessage {
     private MessageType type;
     private String content;
     private String sender;
+    private float  delay=0;
+    private int  seatno;
+    private int  num1;  //price or card num
+    private int  num2;
+    private String txt1;
 
     public enum MessageType {
+        NONE,
+        ERROR,
         CHAT,
-        GAME,
+        VIEW,
         JOIN,
+        ACTION,
+        GAME,
         LEAVE
     }
 
@@ -34,5 +43,45 @@ public class GameMessage {
 
     public void setSender(String sender) {
         this.sender = sender;
+    }
+
+    public int getSeatno() {
+        return seatno;
+    }
+
+    public void setSeatno(int seatno) {
+        this.seatno = seatno;
+    }
+
+    public int getNum1() {
+        return num1;
+    }
+
+    public void setNum1(int num1) {
+        this.num1 = num1;
+    }
+
+    public int getNum2() {
+        return num2;
+    }
+
+    public void setNum2(int num2) {
+        this.num2 = num2;
+    }
+
+    public float getDelay() {
+        return delay;
+    }
+
+    public void setDelay(float delay) {
+        this.delay = delay;
+    }
+
+    public String getTxt1() {
+        return txt1;
+    }
+
+    public void setTxt1(String txt1) {
+        this.txt1 = txt1;
     }
 }
