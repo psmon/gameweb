@@ -193,22 +193,27 @@ public class Game extends Thread{
         }
     }
 
+    protected void indicator(int focusSeat){
+        //indicator
+        GameMessage indicator = new GameMessage();
+        indicator.setType(GameMessage.MessageType.GAME);
+        indicator.setContent("indicator");
+        indicator.setSeatno(focusSeat);
+        sendAll(indicator);
+    }
+
     protected void reqAction(){
-        int timeBank=5;
+        int timeBank=10;
         int idx=0;
         for(Player ply:table.getPlayList()){
-            if(idx>0)   timeBank=3; //Test...
+            if(idx>0)   timeBank=10; //Test...
             idx=idx+1;
             GameMessage actionReq = new GameMessage();
             actionReq.setType(GameMessage.MessageType.GAME);
             actionReq.setContent("action");
             send(ply,actionReq);
 
-            //indicator
-            GameMessage indicator = new GameMessage();
-            indicator.setType(GameMessage.MessageType.GAME);
-            indicator.setContent("indicator");
-            sendAll(indicator);
+            indicator(ply.getSeatNo());
 
             GameMessage actionRes = waitForAction(ply,timeBank);
 

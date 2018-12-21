@@ -53,17 +53,18 @@ function seatIn(gameMessage) {
 function indicator(gameMessage) {
     var seatno=gameMessage.seatno;
     var idx=0;
-    avableSeat.forEach(function(isSeat) {
-        if(isSeat){
+
+    for(var idx=0;idx<avableSeat.length;idx++){
+        if(avableSeat[idx]==true){
             if(idx==seatno){
-                UserBox[seatno].avatar.opacity=300;
+                UserBox[idx].avatar.opacity=300;
+                UserBox[idx].avatar.scale=0.6;
             }else{
-                UserBox[seatno].avatar.opacity=100;
+                UserBox[idx].avatar.opacity=100;
+                UserBox[idx].avatar.scale=0.5;
             }
         }
-        idx=id+1;
-    });
-
+    }
 }
 
 function winner(gameMessage) {
