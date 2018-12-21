@@ -49,6 +49,17 @@ public class Table {
         return result;
     }
 
+    public Player findUser(int setNo){
+        Player result=null;
+        List<Player> userList = playList;
+
+        for(Player ply:userList){
+            if(ply.getSeatNo()==setNo)
+                result = ply;
+        }
+        return result;
+    }
+
     protected void updatePly(Player plyayer,Boolean isView){
         List<Player> userList = isView ==true ? viewList : playList;
         for(Player ply:userList){

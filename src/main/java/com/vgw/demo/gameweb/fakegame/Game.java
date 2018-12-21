@@ -197,12 +197,19 @@ public class Game extends Thread{
         int timeBank=5;
         int idx=0;
         for(Player ply:table.getPlayList()){
-            if(idx>0)   timeBank=1; //Test...
+            if(idx>0)   timeBank=3; //Test...
             idx=idx+1;
             GameMessage actionReq = new GameMessage();
             actionReq.setType(GameMessage.MessageType.GAME);
             actionReq.setContent("action");
             send(ply,actionReq);
+
+            //indicator
+            GameMessage indicator = new GameMessage();
+            indicator.setType(GameMessage.MessageType.GAME);
+            indicator.setContent("indicator");
+            sendAll(indicator);
+
             GameMessage actionRes = waitForAction(ply,timeBank);
 
             boolean isChangeCard=false;
@@ -214,13 +221,32 @@ public class Game extends Thread{
                     gameCard.set(srcSeatNo, gameCard.get(targetSeatNo));
                     gameCard.set(targetSeatNo,tmpcard);
                     isChangeCard=true;
+
                     GameMessage changedInfo = new GameMessage();
                     changedInfo.setType(GameMessage.MessageType.GAME);
                     changedInfo.setContent("changed");
-                    changedInfo.setSeatno(ply.getSeatNo());
-                    changedInfo.setNum1( gameCard.get(ply.getSeatNo()));
+                    changedInfo.setSeatno(srcSeatNo);
+                    changedInfo.setNum1( gameCard.get(srcSeatNo));
                     changedInfo.setNum2( targetSeatNo );
                     send(ply,changedInfo);
+
+                    Player targetPly = table.findUser(targetSeatNo);
+                    changedInfo = new GameMessage();
+                    changedInfo.setType(GameMessage.MessageType.GAME);
+                    changedInfo.setContent("changed");
+                    changedInfo.setSeatno(targetSeatNo);
+                    changedInfo.setNum1( gameCard.get(targetSeatNo));
+                    changedInfo.setNum2( ply.getSeatNo() );
+                    send(targetPly,changedInfo);
+
+                    //Public Changed Info
+                    changedInfo = new GameMessage();
+                    changedInfo.setType(GameMessage.MessageType.GAME);
+                    changedInfo.setContent("swapcard");
+                    changedInfo.setSeatno(0);
+                    changedInfo.setNum1( srcSeatNo );
+                    changedInfo.setNum2( targetSeatNo );
+                    sendAll(changedInfo);
                 }
             }
             if(!isChangeCard){
@@ -265,7 +291,7 @@ public class Game extends Thread{
         for(int i=0;i<waitCnt;i++){
             SessionMessage peekMsg= actionMessage.peek();
             if(peekMsg!=null){
-                if(peekMsg.session==ply.getSession() && peekMsg.gameMessage.equals("GAME") ){
+                if(peekMsg.session==ply.getSession() ){
                     gameProcess(peekMsg);
                     action=peekMsg.gameMessage;
                     break;

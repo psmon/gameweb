@@ -50,6 +50,22 @@ function seatIn(gameMessage) {
     avableSeat[seatno]=true;
 }
 
+function indicator(gameMessage) {
+    var seatno=gameMessage.seatno;
+    var idx=0;
+    avableSeat.forEach(function(isSeat) {
+        if(isSeat){
+            if(idx==seatno){
+                UserBox[seatno].avatar.opacity=300;
+            }else{
+                UserBox[seatno].avatar.opacity=100;
+            }
+        }
+        idx=id+1;
+    });
+
+}
+
 function winner(gameMessage) {
     //TODO : using servervalue
     var seatno=1;
@@ -140,6 +156,22 @@ function textInfoLoad() {
 
 }
 
+function swapcard(gameMessage){
+    var sSeatNo=gameMessage.num1;
+    var tSeatNo=gameMessage.num2;
+
+    var myPos={x:medalPos[sSeatNo].x,y:medalPos[sSeatNo].y-100 };
+    var targetPos={x:medalPos[tSeatNo].x,y:medalPos[tSeatNo].y-100 };
+    var easeOptList = [{type: "EaseBounceOut"}, {type: "EaseInOut", rate: 3}, {type: "EaseInOut", rate: 3}];
+    var easeOpt = easeOptList[0];
+    var easeOpt2 = easeOptList[1];
+    var tmpcard=UserBox[sSeatNo].card;
+    UserBox[sSeatNo].card.moveTo({x: targetPos.x, y: targetPos.y, duration: 2, delay: 0.5,ease:easeOpt });
+    UserBox[tSeatNo].card.moveTo({x: myPos.x, y: myPos.y, duration: 2, delay: 1.0,ease:easeOpt2 });
+    UserBox[mySeatNo].card=UserBox[tSeatNo].card;
+    UserBox[tSeatNo].card=tmpcard;
+}
+
 function changeCard(targetSeatNo) {
     if(avableSeat[targetSeatNo]==false) return;
 
@@ -147,13 +179,8 @@ function changeCard(targetSeatNo) {
         if(targetSeatNo==mySeatNo){
             sendGameAction({content:"nochange",num1:0,num2:0})
         }else{
-            var myPos={x:medalPos[mySeatNo].x,y:medalPos[mySeatNo].y-100 };
-            var targetPos={x:medalPos[targetSeatNo].x,y:medalPos[targetSeatNo].y-100 };
-            var easeOptList = [{type: "EaseBounceOut"}, {type: "EaseInOut", rate: 3}, {type: "EaseInOut", rate: 3}];
-            var easeOpt = easeOptList[0]
-            var easeOpt2 = easeOptList[1]
-            UserBox[mySeatNo].card.moveTo({x: targetPos.x, y: targetPos.y, duration: 2, delay: 0.5,ease:easeOpt });
-            UserBox[targetSeatNo].card.moveTo({x: myPos.x, y: myPos.y, duration: 2, delay: 1.0,ease:easeOpt2 });
+            //UserBox[mySeatNo].cardrect.seatno=targetSeatNo;
+            //UserBox[targetSeatNo].cardrect.seatno=mySeatNo;
             sendGameAction({content:"change",num1:targetSeatNo,num2:0})
         }
     }
@@ -251,7 +278,9 @@ function messageControler(gameMessage) {
             betting(gameMessage);
             lblActionInfo.string="AutoBet:10"
             break;
-
+        case "indicator":
+            indicator(gameMessage)
+            break;
         case "action":
             action(gameMessage);
             break;
@@ -266,7 +295,12 @@ function messageControler(gameMessage) {
             UserBox[seatno].card.position.y=100;
             UserBox[seatno].card.angle=70;
             UserBox[seatno].card.moveTo({x:medalPos[seatno].x,y:medalPos[seatno].y-100,duration:0.5,delay:aniDelay,angle:360*3 });
+            //UserBox[seatno].cardrect.seatno=seatno;
             break;
+        case "swapcard":
+            swapcard(gameMessage);
+            break;
+
         case "showcard":
         case "changed":
             if(gameMessage.content=="changed")
