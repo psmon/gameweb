@@ -222,31 +222,10 @@ public class Game extends Thread{
                     gameCard.set(targetSeatNo,tmpcard);
                     isChangeCard=true;
 
-                    GameMessage changedInfo = new GameMessage();
-                    changedInfo.setType(GameMessage.MessageType.GAME);
-                    changedInfo.setContent("changed");
-                    changedInfo.setSeatno(srcSeatNo);
-                    changedInfo.setNum1( gameCard.get(srcSeatNo));
-                    changedInfo.setNum2( targetSeatNo );
-                    send(ply,changedInfo);
-
+                    swapCard(srcSeatNo,targetSeatNo);
+                    waitTime(1000);
                     Player targetPly = table.findUser(targetSeatNo);
-                    changedInfo = new GameMessage();
-                    changedInfo.setType(GameMessage.MessageType.GAME);
-                    changedInfo.setContent("changed");
-                    changedInfo.setSeatno(targetSeatNo);
-                    changedInfo.setNum1( gameCard.get(targetSeatNo));
-                    changedInfo.setNum2( ply.getSeatNo() );
-                    send(targetPly,changedInfo);
-
-                    //Public Changed Info
-                    changedInfo = new GameMessage();
-                    changedInfo.setType(GameMessage.MessageType.GAME);
-                    changedInfo.setContent("swapcard");
-                    changedInfo.setSeatno(0);
-                    changedInfo.setNum1( srcSeatNo );
-                    changedInfo.setNum2( targetSeatNo );
-                    sendAll(changedInfo);
+                    changedCard(ply,targetPly);
                 }
             }
             if(!isChangeCard){
@@ -256,6 +235,36 @@ public class Game extends Thread{
                 send(ply,timeOutMessage);
             }
         }
+    }
+
+    @SuppressWarnings("Duplicates")
+    protected void changedCard(Player srcPly,Player targetPly){
+        GameMessage changedInfo = new GameMessage();
+        changedInfo.setType(GameMessage.MessageType.GAME);
+        changedInfo.setContent("changed");
+        changedInfo.setSeatno(srcPly.getSeatNo());
+        changedInfo.setNum1( gameCard.get(srcPly.getSeatNo()));
+        changedInfo.setNum2( targetPly.getSeatNo() );
+        GameMessage changedInfo2 = new GameMessage();
+        changedInfo2.setType(GameMessage.MessageType.GAME);
+        changedInfo2.setContent("changed");
+        changedInfo2.setSeatno(targetPly.getSeatNo());
+        changedInfo2.setNum1( gameCard.get(targetPly.getSeatNo()));
+        changedInfo2.setNum2( srcPly.getSeatNo() );
+
+        send(srcPly,changedInfo);
+        send(targetPly,changedInfo2);
+    }
+
+    protected void swapCard(int srcSeatNo,int targetSeatNo){
+        //Public Changed Info
+        GameMessage changedInfo = new GameMessage();
+        changedInfo.setType(GameMessage.MessageType.GAME);
+        changedInfo.setContent("swapcard");
+        changedInfo.setSeatno(0);
+        changedInfo.setNum1( srcSeatNo );
+        changedInfo.setNum2( targetSeatNo );
+        sendAll(changedInfo);
     }
 
     protected void turn(int turnSeq){
@@ -276,7 +285,7 @@ public class Game extends Thread{
         gameMessage.setType(GameMessage.MessageType.GAME);
         //Todo: GameResult
         sendAll(gameMessage);
-        waitTime(7000); //Result Time..
+        waitTime(5000); //Result Time..
     }
 
     protected void waitTime(int time){

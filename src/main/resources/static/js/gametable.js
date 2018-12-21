@@ -159,7 +159,6 @@ function textInfoLoad() {
 function swapcard(gameMessage){
     var sSeatNo=gameMessage.num1;
     var tSeatNo=gameMessage.num2;
-
     var myPos={x:medalPos[sSeatNo].x,y:medalPos[sSeatNo].y-100 };
     var targetPos={x:medalPos[tSeatNo].x,y:medalPos[tSeatNo].y-100 };
     var easeOptList = [{type: "EaseBounceOut"}, {type: "EaseInOut", rate: 3}, {type: "EaseInOut", rate: 3}];
@@ -168,7 +167,7 @@ function swapcard(gameMessage){
     var tmpcard=UserBox[sSeatNo].card;
     UserBox[sSeatNo].card.moveTo({x: targetPos.x, y: targetPos.y, duration: 2, delay: 0.5,ease:easeOpt });
     UserBox[tSeatNo].card.moveTo({x: myPos.x, y: myPos.y, duration: 2, delay: 1.0,ease:easeOpt2 });
-    UserBox[mySeatNo].card=UserBox[tSeatNo].card;
+    UserBox[sSeatNo].card=UserBox[tSeatNo].card;
     UserBox[tSeatNo].card=tmpcard;
 }
 
