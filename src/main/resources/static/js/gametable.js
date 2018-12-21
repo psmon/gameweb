@@ -1,8 +1,5 @@
-var _demoRefCount = 0;
 var dealer;
-var _seqCount=0;
 var medalPos =new Array({x:50,y:400},{x:150,y:450},{x:270,y:500},{x:420,y:500},{x:550,y:500},{x:650,y:450},{x:750,y:400});
-var playerinfos = new Array();
 var userCards = new Array();
 var yourCard;
 var needSelectCard=false;
@@ -10,22 +7,15 @@ var mySeatNo=0;
 var betPotList=[];
 var backGround;
 var lblActionInfo;
-
 var avableSeat=[false,false,false,false,false,false,false]
 
 var UserBox = new Array(
-    {avatar:null,titile:null,chip:null,card:null,scard:null,cardrect:null},{avatar:null,titile:null,chip:null,card:null,scard:null,cardrect:null},
-        {avatar:null,titile:null,chip:null,card:null,scard:null,cardrect:null},{avatar:null,titile:null,chip:null,card:null,scard:null,cardrect:null},
-        {avatar:null,titile:null,chip:null,card:null,scard:null,cardrect:null},{avatar:null,titile:null,chip:null,card:null,scard:null,cardrect:null},
-        {avatar:null,titile:null,chip:null,card:null,scard:null,cardrect:null}
+    {avatar:null,titile:null,chip:null,card:null,scard:null,rcard:null,cardrect:null},{avatar:null,titile:null,chip:null,card:null,scard:null,rcard:null,cardrect:null},
+        {avatar:null,titile:null,chip:null,card:null,scard:null,rcard:null,cardrect:null},{avatar:null,titile:null,chip:null,card:null,scard:null,rcard:null,cardrect:null},
+        {avatar:null,titile:null,chip:null,card:null,scard:null,rcard:null,cardrect:null},{avatar:null,titile:null,chip:null,card:null,scard:null,rcard:null,cardrect:null},
+        {avatar:null,titile:null,chip:null,card:null,scard:null,rcard:null,cardrect:null}
     );
 
-function displayPoint(x,y){
-    _seqCount++;
-    var label = cocoApp.addLabel({string: _seqCount , fontName:"Arial",fontSize:16,fontColor:"red" });
-    label.position.x=x;
-    label.position.y=y;
-}
 
 // ### UI Update By Message
 function userBoxVisible(seatno,opacity) {
@@ -85,6 +75,7 @@ function winner(gameMessage) {
         });
     }
     UserBox[seatno].chip.string=chipUpdate;
+    UserBox[seatno].rcard.scale=0.5;
 }
 
 function betting(gameMessage) {
@@ -138,6 +129,9 @@ function action(gameMessage) {
 function itItStage() {
     for(var seatno=0;seatno<7;seatno++){
         UserBox[seatno].card.opacity=0;
+        UserBox[seatno].scard.opacity=0;
+        if(UserBox[seatno].rcard!=null)
+            UserBox[seatno].rcard.opacity=0;
     }
     needSelectCard=false;
     if(betPotList!=null){
@@ -189,6 +183,22 @@ function changeCard(targetSeatNo) {
     needSelectCard=false;
 }
 
+function opencard(gameMessage) {
+    var seatno = gameMessage.seatno;
+    var cardno = gameMessage.num1;
+    var delay = gameMessage.delay;
+
+    UserBox[seatno].card.opacity=0;
+    UserBox[seatno].scard.opacity=300;
+
+    var cardimg=['c1.jpg','c2.jpg','c3.jpg','c4.jpg','c5.jpg','c6.jpg','c7.jpg','c8.jpg'];
+    UserBox[seatno].rcard = cocoApp.addImage('img/cards/'+ cardimg[cardno], medalPos[seatno].x, medalPos[seatno].y-100);
+    UserBox[seatno].rcard.scale=0.3;
+    UserBox[seatno].rcard.opacity=0;
+    UserBox[seatno].rcard.moveTo({x:medalPos[seatno].x,y:medalPos[seatno].y-100,duration: 0.5, delay: delay,opacity:300});
+
+}
+
 function userBoxLoad() {
     for(var seatno=0;seatno<7;seatno++){
         var imgUrl='img/avartar/'+ Number(seatno+1).toString() +'-crop.png';
@@ -220,7 +230,6 @@ function userBoxLoad() {
                 changeCard(this.seatno)
             }
         })();
-
 
         UserBox[seatno].avatar=avatar;
         UserBox[seatno].card=card;
@@ -322,6 +331,9 @@ function messageControler(gameMessage) {
             break;
         case "actionend":
             lblActionInfo.string="";
+            break;
+        case "opencard":
+            opencard(gameMessage);
             break;
         case "gameresult":
             lblActionInfo.string="GameResult";

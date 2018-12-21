@@ -210,14 +210,14 @@ public class Game extends Thread{
         gameCard.set(targetSeatNo,tmpcard);
 
         swapCard(srcSeatNo,targetSeatNo);
-        waitTime(3000);
+        waitForAni(3000);
         Player targetPly = table.findUser(targetSeatNo);
         changedCard(ply,targetPly);
 
     }
 
     protected void reqAction(){
-        int timeBank=5;
+        int timeBank=3;
         int idx=0;
         boolean bBotMode=true;
         for(Player ply:table.getPlayList()){
@@ -242,7 +242,7 @@ public class Game extends Thread{
             }
             if(!isChangeCard){
                 if(!bBotMode){
-                    waitTime(1000);
+                    waitForAni(1000);
                     GameMessage timeOutMessage=new GameMessage();
                     timeOutMessage.setType(GameMessage.MessageType.GAME);
                     timeOutMessage.setContent("actionend");
@@ -303,11 +303,28 @@ public class Game extends Thread{
         }
     }
 
+    protected void showAllCards(){
+        gameState=GameState.RESULT;
+        float delayAni=0.0f;
+        for(Player ply:table.getPlayList()){
+            int card=gameCard.get(ply.getSeatNo());
+            GameMessage gameMessage = new GameMessage();
+            gameMessage.setContent("opencard");
+            gameMessage.setType(GameMessage.MessageType.GAME);
+            gameMessage.setSeatno(ply.getSeatNo());
+            gameMessage.setNum1(card);
+            gameMessage.setDelay(delayAni);
+            delayAni+=0.2f;
+            sendAll(gameMessage);
+        }
+    }
+
     protected void gameResult(){
         gameState=GameState.RESULT;
         Player winPly=null;
+        //TODO: gamecard to plycard
         for(Player ply:table.getPlayList()){
-            if(ply.getCard()==wiinerCard){
+            if( gameCard.get(ply.getSeatNo())==wiinerCard){
                 winPly=ply;
                 ply.updateChips(totalBetAmmount);
                 break;
@@ -319,10 +336,10 @@ public class Game extends Thread{
         gameMessage.setNum1(winPly.getChips());
         gameMessage.setType(GameMessage.MessageType.GAME);
         sendAll(gameMessage);
-        waitTime(5000); //Result Time..
+        waitForAni(5000); //Result Time..
     }
 
-    protected void waitTime(int time){
+    protected void waitForAni(int time){
         try{
             Thread.sleep(time);
         }catch (Exception e){
@@ -342,7 +359,7 @@ public class Game extends Thread{
                     otherProcess(peekMsg);
                 }
             }
-            waitTime(1000);
+            waitForAni(1000);
         }
         actionMessage.clear();
         return action;
@@ -365,7 +382,7 @@ public class Game extends Thread{
             while( true ){
                 try{
                     if(gameState==GameState.CLOSE) break;
-                    waitTime(100);
+                    waitForAni(100);
                     if(loopCnt %100==0){
                         chkGame(false);
                     }
@@ -374,20 +391,21 @@ public class Game extends Thread{
                         stagestart();
                         int playingCnt = table.getPlayList().size();
                         logger.info("Game Bet Card");
-                        waitTime(1000);
+                        waitForAni(1000);
                         betting();
-                        waitTime(3000 + (playingCnt*1000) );
+                        waitForAni(3000 + (playingCnt*1000) );
                         logger.info("Game Ready Card");
                         readyCard();
                         for(int turnCnt=0;turnCnt<maxTurn;turnCnt++){
                             turn(turnCnt);
-                            waitTime(1000);
+                            waitForAni(1000);
                         }
-
-                        waitTime(3000 + (playingCnt*1000) );
-
+                        logger.info("Game ShowDown");
+                        showAllCards();
+                        waitForAni(3000 + (playingCnt*1000) );
+                        logger.info("Game Winner Info");
                         gameResult();
-                        waitTime(5000);
+                        waitForAni(5000);
                         gameState=GameState.WAIT;
                     }
                 }catch (Exception e){
