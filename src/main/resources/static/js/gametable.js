@@ -69,7 +69,8 @@ function indicator(gameMessage) {
 
 function winner(gameMessage) {
     //TODO : using servervalue
-    var seatno=1;
+    var seatno=gameMessage.seatno;
+    var chipUpdate=gameMessage.num1;
     if(betPotList!=null){
         //TODO : Remove Chips
         var idx=0;
@@ -77,12 +78,13 @@ function winner(gameMessage) {
             var easeOptList = [{type: "EaseInOut", rate: 3}, {type: "EaseInOut", rate: 3},{type: "EaseBounceOut"}];
             var easeOpt2 = easeOptList[1];
             var tx = medalPos[seatno].x - 30  + Math.floor((Math.random() * 10) + 10);
-            var ty = medalPos[seatno].y - 20  + Math.floor((Math.random() * 10) + 10);;
-            chipimg.opacity=100
+            var ty = medalPos[seatno].y - 20  + Math.floor((Math.random() * 10) + 10);
+            chipimg.opacity=100;
             chipimg.moveTo({x: tx, y: ty, duration: 1 ,delay:0.2,ease:easeOpt2,angle:360*3,opacity:0 });
             idx++;
         });
     }
+    UserBox[seatno].chip.string=chipUpdate;
 }
 
 function betting(gameMessage) {

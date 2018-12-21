@@ -202,11 +202,26 @@ public class Game extends Thread{
         sendAll(indicator);
     }
 
+    protected void swapcard(Player ply,int targetSeatNo){
+        int srcSeatNo=ply.getSeatNo();
+        //int targetSeatNo=actionRes.getNum1();
+        int tmpcard = gameCard.get(srcSeatNo);
+        gameCard.set(srcSeatNo, gameCard.get(targetSeatNo));
+        gameCard.set(targetSeatNo,tmpcard);
+
+        swapCard(srcSeatNo,targetSeatNo);
+        waitTime(3000);
+        Player targetPly = table.findUser(targetSeatNo);
+        changedCard(ply,targetPly);
+
+    }
+
     protected void reqAction(){
-        int timeBank=10;
+        int timeBank=5;
         int idx=0;
+        boolean bBotMode=true;
         for(Player ply:table.getPlayList()){
-            if(idx>0)   timeBank=10; //Test...
+            if(idx>0 && bBotMode)   timeBank=1; //Test for AI Action
             idx=idx+1;
             GameMessage actionReq = new GameMessage();
             actionReq.setType(GameMessage.MessageType.GAME);
@@ -220,24 +235,29 @@ public class Game extends Thread{
             boolean isChangeCard=false;
             if(actionRes!=null){
                 if(actionRes.getContent().equals("change")){
-                    int srcSeatNo=ply.getSeatNo();
                     int targetSeatNo=actionRes.getNum1();
-                    int tmpcard = gameCard.get(srcSeatNo);
-                    gameCard.set(srcSeatNo, gameCard.get(targetSeatNo));
-                    gameCard.set(targetSeatNo,tmpcard);
+                    swapcard(ply,targetSeatNo);
                     isChangeCard=true;
-
-                    swapCard(srcSeatNo,targetSeatNo);
-                    waitTime(1000);
-                    Player targetPly = table.findUser(targetSeatNo);
-                    changedCard(ply,targetPly);
                 }
             }
             if(!isChangeCard){
-                GameMessage timeOutMessage=new GameMessage();
-                timeOutMessage.setType(GameMessage.MessageType.GAME);
-                timeOutMessage.setContent("actionend");
-                send(ply,timeOutMessage);
+                if(!bBotMode){
+                    waitTime(1000);
+                    GameMessage timeOutMessage=new GameMessage();
+                    timeOutMessage.setType(GameMessage.MessageType.GAME);
+                    timeOutMessage.setContent("actionend");
+                    send(ply,timeOutMessage);
+                }else{
+                    // Auto Change:AI MODE...
+                    List<Integer> otherUsers = new ArrayList<>();
+                    for(Player otherPly:table.getPlayList()){
+                        if(otherPly.getSeatNo()!=ply.getSeatNo())
+                            otherUsers.add(otherPly.getSeatNo());
+                    }
+                    Collections.shuffle(otherUsers);
+                    int targetSeatNo=otherUsers.get(0);
+                    swapcard(ply,targetSeatNo);
+                }
             }
         }
     }
@@ -285,10 +305,19 @@ public class Game extends Thread{
 
     protected void gameResult(){
         gameState=GameState.RESULT;
+        Player winPly=null;
+        for(Player ply:table.getPlayList()){
+            if(ply.getCard()==wiinerCard){
+                winPly=ply;
+                ply.updateChips(totalBetAmmount);
+                break;
+            }
+        }
         GameMessage gameMessage = new GameMessage();
         gameMessage.setContent("gameresult");
+        gameMessage.setSeatno(winPly.getSeatNo());
+        gameMessage.setNum1(winPly.getChips());
         gameMessage.setType(GameMessage.MessageType.GAME);
-        //Todo: GameResult
         sendAll(gameMessage);
         waitTime(5000); //Result Time..
     }
@@ -343,16 +372,20 @@ public class Game extends Thread{
 
                     if(isStartGame() && loopCnt %10==0 ){
                         stagestart();
+                        int playingCnt = table.getPlayList().size();
                         logger.info("Game Bet Card");
                         waitTime(1000);
                         betting();
-                        waitTime(5000);
+                        waitTime(3000 + (playingCnt*1000) );
                         logger.info("Game Ready Card");
                         readyCard();
                         for(int turnCnt=0;turnCnt<maxTurn;turnCnt++){
                             turn(turnCnt);
+                            waitTime(1000);
                         }
-                        waitTime(5000);
+
+                        waitTime(3000 + (playingCnt*1000) );
+
                         gameResult();
                         waitTime(5000);
                         gameState=GameState.WAIT;
