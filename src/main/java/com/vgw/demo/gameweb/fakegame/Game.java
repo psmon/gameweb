@@ -78,7 +78,7 @@ public class Game extends Thread{
         gameState=GameState.CARD1;
         wiinerCard=1;
         turnSeq=1;
-        int playNum = table.getPlayList().size();
+        int playNum = table.getPlayList(true).size();
         gameCard.clear();
         Random random = new Random();
         int maxCard=7;
@@ -141,7 +141,7 @@ public class Game extends Thread{
         Collections.shuffle(gameCard, new Random(seedValue));
 
         float aniDelay=0.0f;
-        for(Player ply:table.getPlayList()){
+        for(Player ply:table.getPlayList(true)){
             int playerCard = gameCard.get(ply.getSeatNo());
             ply.setCard( playerCard );
 
@@ -171,12 +171,14 @@ public class Game extends Thread{
         message.setType(GameMessage.MessageType.GAME);
         message.setContent("stagestart");
         sendAll(message);
+        table.setNextDealer();
+        updateDealer(table.getDealer());
     }
 
     protected void betting(){
         gameState=GameState.BET;
         float aniDelay=0.0f;
-        for(Player ply:table.getPlayList()){
+        for(Player ply:table.getPlayList(true)){
             ply.updateChips(-betAmmount);
             GameMessage message = new GameMessage();
             message.setType(GameMessage.MessageType.GAME);
@@ -191,6 +193,14 @@ public class Game extends Thread{
             //send(ply,message);
             sendAll(message);
         }
+    }
+
+    protected void updateDealer(int seat){
+        GameMessage indicator = new GameMessage();
+        indicator.setType(GameMessage.MessageType.GAME);
+        indicator.setContent("dealer");
+        indicator.setSeatno(seat);
+        sendAll(indicator);
     }
 
     protected void indicator(int focusSeat){
@@ -220,7 +230,7 @@ public class Game extends Thread{
         int timeBank=12;
         int idx=0;
         boolean bBotMode=true;
-        for(Player ply:table.getPlayList()){
+        for(Player ply:table.getPlayList(true)){
             if(idx>0 && bBotMode)   timeBank=8; //Test for AI Action
             idx=idx+1;
             GameMessage actionReq = new GameMessage();
@@ -250,7 +260,7 @@ public class Game extends Thread{
                 }else{
                     // Auto Change:AI MODE...
                     List<Integer> otherUsers = new ArrayList<>();
-                    for(Player otherPly:table.getPlayList()){
+                    for(Player otherPly:table.getPlayList(true)){
                         if(otherPly.getSeatNo()!=ply.getSeatNo())
                             otherUsers.add(otherPly.getSeatNo());
                     }
@@ -306,7 +316,7 @@ public class Game extends Thread{
     protected void showAllCards(){
         gameState=GameState.RESULT;
         float delayAni=0.0f;
-        for(Player ply:table.getPlayList()){
+        for(Player ply:table.getPlayList(true)){
             int card=gameCard.get(ply.getSeatNo());
             GameMessage gameMessage = new GameMessage();
             gameMessage.setContent("opencard");
@@ -323,7 +333,7 @@ public class Game extends Thread{
         gameState=GameState.RESULT;
         Player winPly=null;
         //TODO: gamecard to plycard
-        for(Player ply:table.getPlayList()){
+        for(Player ply:table.getPlayList(true)){
             if( gameCard.get(ply.getSeatNo())==wiinerCard){
                 winPly=ply;
                 ply.updateChips(totalBetAmmount);
@@ -389,7 +399,7 @@ public class Game extends Thread{
 
                     if(isStartGame() && loopCnt %10==0 ){
                         stagestart();
-                        int playingCnt = table.getPlayList().size();
+                        int playingCnt = table.getPlayList(false).size();
                         logger.info("Game Bet Card");
                         waitForAni(1000);
                         betting();
@@ -485,7 +495,7 @@ public class Game extends Thread{
 
     protected void OnSeatPly(Player ply){
         sendSeatInfo(ply,true,null);
-        for(Player other:table.getPlayList()){
+        for(Player other:table.getPlayList(false)){
             if(!ply.getSession().equals(other.getSession())){
                 sendSeatInfo(other,false,ply);
             }
@@ -507,7 +517,7 @@ public class Game extends Thread{
         gameMessage.setContent("readytable");
         gameMessage.setNum1(table.getTableId());
         send(ply,gameMessage);
-        for(Player other:table.getPlayList()){
+        for(Player other:table.getPlayList(false)){
             sendSeatInfo(other,false,ply);
         }
         //For Test

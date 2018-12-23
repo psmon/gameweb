@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class Table {
@@ -25,6 +26,7 @@ public class Table {
     protected void initTable(){
         maxPly=7;
         minPly=3;
+        dealer=-1;
         playList = new ArrayList<>();
         viewList = new ArrayList<>();
         avableSeat = new ArrayList<>();
@@ -183,12 +185,49 @@ public class Table {
         this.dealer = dealer;
     }
 
-    public void setDealerNext(){
-        int plySize = playList.size();
+    public void setNextDealer(){
+        int nextDealer=-1;
+        List<Player> sortList = new ArrayList<>(playList);
+        Collections.sort(sortList, (a, b) -> a.getSeatNo() < b.getSeatNo() ? -1 : a.getSeatNo() == b.getSeatNo() ? 0 : 1);
+        boolean findDealer = false;
+        Player firstPly=sortList.get(0);
+        for(Player ply:sortList){
+            if(findDealer){
+                nextDealer=ply.getSeatNo();
+                break;
+            }
+            if(dealer == ply.getSeatNo()){
+                findDealer=true;
+            }
+        }
+
+        if(nextDealer==-1){
+            nextDealer=firstPly.getSeatNo();
+        }
+
+        dealer=nextDealer;
     }
 
-    public List<Player> getPlayList() {
-        return playList;
+    public List<Player> getPlayList(boolean isDealerOrder) {
+        List<Player> listOrder;
+        if(isDealerOrder){
+            List<Player> sortList = new ArrayList<>(playList);
+            List<Player> sortDealerList = new ArrayList<>();
+            List<Player> addLast = new ArrayList<>();
+            Collections.sort(sortList, (a, b) -> a.getSeatNo() < b.getSeatNo() ? -1 : a.getSeatNo() == b.getSeatNo() ? 0 : 1);
+            for(Player ply:sortList){
+                if(dealer<= ply.getSeatNo()){
+                    sortDealerList.add(ply);
+                }else{
+                    addLast.add(ply);
+                }
+            }
+            sortDealerList.addAll(addLast);
+            listOrder=sortDealerList;
+        }else{
+            listOrder=playList;
+        }
+        return listOrder;
     }
 
     public Game getGame() {
