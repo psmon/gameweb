@@ -9,11 +9,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
-import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.stereotype.Component;
 
-import javax.xml.ws.Service;
+// TODO : More Clear using Depency Injection
+// https://blog.marcnuri.com/field-injection-is-not-recommended/
 
 @Component
 @Scope(value = ConfigurableBeanFactory.SCOPE_SINGLETON)
@@ -21,12 +21,17 @@ public class Lobby {
 
     private static final Logger logger = LoggerFactory.getLogger(Lobby.class);
 
-    private Map<Integer,Table> gameTables;
+    private final Map<Integer,Table> gameTables;
 
     static private Map<String,SimpMessageSendingOperations>    sessionMgr = new HashMap<>();
 
+    static SimpMessageSendingOperations getSender(String sessionid){
+        return sessionMgr.get(sessionid);
+    }
+
+    @Autowired
     public  Lobby(){
-        gameTables = new HashMap<Integer,Table>();
+        gameTables = new HashMap<>();
         // Create
         for(int i=0;i<5;i++){
             Table addTable = new Table();
@@ -45,10 +50,6 @@ public class Lobby {
             entry.getValue().cleanUser(sessionid);
         }
         sessionMgr.remove(sessionid);
-    }
-
-    static public SimpMessageSendingOperations getSender(String sessionid){
-        return sessionMgr.get(sessionid);
     }
 
     public Table findTableByID(Integer tableId){

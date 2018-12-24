@@ -11,15 +11,13 @@ import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.stereotype.Controller;
 
-import java.security.Principal;
-
 @Controller
 public class LobbyController {
 
     private static final Logger logger = LoggerFactory.getLogger(LobbyController.class);
 
     @Autowired
-    Lobby lobby;
+    private Lobby lobby;
 
 
     @MessageMapping("/lobby.addUser")
@@ -29,17 +27,16 @@ public class LobbyController {
 
         String  sessionId = headerAccessor.getSessionId();
         logger.info("Add User:" + sessionId );
-
+        gameMessage.setContent("added user..");
         //String secuname = headerAccessor.setUser();
         // Add username in web socket session
-        headerAccessor.getSessionAttributes().put("username", gameMessage.getSender());
-        headerAccessor.getSessionAttributes().put("ws-session", headerAccessor.getUser().getName());
-
-        //headerAccessor.getSessionAttributes().put("secuname", secuname);
-
-        gameMessage.setContent("added Succed..");
+        try{
+            headerAccessor.getSessionAttributes().put("username", gameMessage.getSender());
+            headerAccessor.getSessionAttributes().put("ws-session", headerAccessor.getUser().getName());
+        }catch (Exception e){
+            gameMessage.setContent("auth error");
+        }
         return gameMessage;
     }
-
 
 }

@@ -34,3 +34,20 @@ use more advanced messages and Dispatcher
 
 Large capacity processing is being prepared in the next corner.
 url : https://github.com/psmon/springcloud
+
+## Expansion
+
+Topic : Evolution of message patterns in server modules
+
+How to: 
+- Block all shared objects
+- Each object can only talk through messages
+
+Detailed:
+- Thread Model(Share Object) - > Actor Model
+
+
+
+
+
+
