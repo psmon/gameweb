@@ -53,7 +53,7 @@ public class WebSocketEventListener {
 
         // #ACTOR - This can be extended to remote without implementation changes.
         ActorSelection lobby = system.actorSelection("/user/lobby");
-        lobby.tell(new ConnectInfo(sessionId,messagingTemplate, ConnectInfo.ConnectState.CONNECT), ActorRef.noSender());
+        lobby.tell(new ConnectInfo(sessionId,messagingTemplate, ConnectInfo.ConnectCmd.CONNECT), ActorRef.noSender());
 
         // Suppose you create several child actors under table.
         // You can send a message to all children with the following commands.
@@ -79,7 +79,7 @@ public class WebSocketEventListener {
 
             // #ACTOR
             ActorSelection lobby = system.actorSelection("/user/lobby");
-            lobby.tell(new ConnectInfo(session,messagingTemplate, ConnectInfo.ConnectState.DISCONET), ActorRef.noSender());
+            lobby.tell(new ConnectInfo(session,messagingTemplate, ConnectInfo.ConnectCmd.DISCONET), ActorRef.noSender());
         }
     }
 
