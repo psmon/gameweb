@@ -1,6 +1,7 @@
 package com.vgw.demo.gameweb.actor;
 
 import akka.actor.AbstractActor;
+import akka.actor.ActorRef;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
 import com.vgw.demo.gameweb.message.actor.ConnectInfo;
@@ -38,7 +39,8 @@ public class LobbyActor extends AbstractActor {
                     // Create a table under the lobby, if you have an Actor named TableManagement, you can move easily.
                     String tableUID = "table-" + t.getTableId();
                     if(t.getCmd() == TableInfo.TableCmd.CREATE){
-                        getContext().actorOf( TableActor.props(t,this.getSelf() ), tableUID);
+                        ActorRef tableActor = getContext().actorOf( TableActor.props(t,this.getSelf() ), tableUID);
+                        tableActor.tell(t,ActorRef.noSender());
                     }
                 })
                 .build();

@@ -69,6 +69,25 @@ public class SpringAkkaIntegrationTest extends AbstractJUnit4SpringContextTests 
         Assert.assertEquals("Hello, John", Await.result(result, duration));
     }
 
+    @Test
+    public void createTableAndPingGame() throws Exception{
+        // Select Lobby
+        ActorSelection lobby = system.actorSelection("/user/lobby");
+
+        // Create Unique Table( 1000 )
+        lobby.tell( new TableInfo(1000,"table-"+1000 ,TableInfo.TableCmd.CREATE),ActorRef.noSender() );
+
+        // AutoCreate Game by TableActor
+        // Just Game Select
+        ActorSelection game = system.actorSelection("/user/lobby/table-1000/game-1000");
+
+        //Test Game Response
+        FiniteDuration duration = FiniteDuration.create(1, TimeUnit.SECONDS);
+        Timeout timeout = Timeout.durationToTimeout(duration);
+        Future<Object> result = ask(game, new Greeting("Game"), timeout);
+        Assert.assertEquals("Hello, Game", Await.result(result, duration));
+    }
+
     @After
     public void tearDown() {
         system.terminate();
