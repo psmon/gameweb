@@ -3,11 +3,6 @@
 - run : mvn spring-boot:run
 - launchurl : http://localhost:8080/
 
-## Sample Demo ( Multiplayer)
-
-![](http://wiki.webnori.com/download/attachments/17727533/image2018-12-24_23-12-40.png?version=1&modificationDate=1545660760701&api=v2)
-movie  : [link](http://wiki.webnori.com/display/devbegin/multiplayer-cardgame?preview=/17727533/17727532/play-demo.mp4)
-
 ## Application Layout
 - controller : endpoint for ws
 - actor : There is only an actor design that works with web sockets, and you can fill in the server logic.
