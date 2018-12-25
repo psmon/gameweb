@@ -1,4 +1,4 @@
-# PSMON's LightWeight WebGame Kit
+# PSMON's LightWeight WebGame Kit for Multiplayer
 
 - run : mvn spring-boot:run
 - launchurl : http://localhost:8080/
@@ -10,32 +10,48 @@ movie  : [link](http://wiki.webnori.com/display/devbegin/multiplayer-cardgame?pr
 
 ## Application Layout
 - controller : endpoint for ws
-- fakegame : sample server logic
-- message : realtime game message
+- actor : There is only an actor design that works with web sockets, and you can fill in the server logic.
+- fakegame : The sample logic created here can be switched to the Actor model.
+- message : realtime message for game
 - static : html5 client resources ( pure javascript )
 
-## Server
+## Server Concept
 
-spring boot 2 + websocket
+spring boot 2 + websocket + Actor
 
 This allows you to learn basic web socket handles for multiplayer.
 
-There is a simple code to work with, but it is a sample code that multiplayer works. Fill in your ideas in a more advanced way.
+There is a simple code to work with, but it is a sample code that multiplayer works. 
 
 ![...](doc/ws-server.png)
 
-## Client
+
+The test code allows you to understand AKKA's actor model of how to create server objects and send messages.
+
+It works perfectly integrated with Spring.
+
+[test code here](src/test/java/com/vgw/demo/gameweb/SpringAkkaIntegrationTest.java)
+
+## Client Concept
 
 pscocos : legacy canvas library that modified cocos 2d.js by psmon -http://psmon.x-y.net/pscoco/sample.html
 
     This game demo is written in the old Cansvas module and pure JavaScript.
-    If you want to create more complex and colorful games. 
-    We recommend using the TypeScript or better Canvas module.
+    Suitable for rapid development for prototypes, but not for official projects
+
+## Sample Demo ( Multiplayer)
+
+![](http://wiki.webnori.com/download/attachments/17727533/image2018-12-24_23-12-40.png?version=1&modificationDate=1545660760701&api=v2)
+movie  : [link](http://wiki.webnori.com/display/devbegin/multiplayer-cardgame?preview=/17727533/17727532/play-demo.mp4)
 
 ## Large capacity distributed processing system
 
-The server module is written in a simple threaded model. If you want distributed applications, 
-use more advanced messages and Dispatcher
+AKKA Actor and Spring Rest are easy to change to distributed processing. It is not covered in this project. Please refer to the following link
 
-Large capacity processing is being prepared in the next corner.
 url : https://github.com/psmon/springcloud
+
+
+
+
+
+

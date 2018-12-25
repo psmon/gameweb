@@ -26,11 +26,11 @@ public class GamewebApplicationTests {
 			ply.setSeatNo(4-i);
 			sortList.add(ply);
 		}
-
 		Collections.sort(sortList, (a, b) -> a.getSeatNo() < b.getSeatNo() ? -1 : a.getSeatNo() == b.getSeatNo() ? 0 : 1);
-
 		Assert.assertEquals(0,sortList.get(0).getSeatNo());
-
 	}
+
+
+
 
 }
