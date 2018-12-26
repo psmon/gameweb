@@ -34,11 +34,15 @@ public class SpringAkkaIntegrationTest extends AbstractJUnit4SpringContextTests 
     @Autowired
     private ActorSystem system;
 
+    final private int timeout_create = 3;
+
+    final private int timeout_terminate = 3;
+
     @Test
     public void whenCallingGreetingActor_thenActorGreetsTheCaller() throws Exception {
         ActorRef greeter = system.actorOf(SPRING_EXTENSION_PROVIDER.get(system).props("greetingActor"), "greeter");
 
-        FiniteDuration duration = FiniteDuration.create(1, TimeUnit.SECONDS);
+        FiniteDuration duration = FiniteDuration.create(timeout_create, TimeUnit.SECONDS);
         Timeout timeout = Timeout.durationToTimeout(duration);
         Future<Object> result = ask(greeter, new Greeting("John"), timeout);
         Assert.assertEquals("Hello, John", Await.result(result, duration));
@@ -63,7 +67,7 @@ public class SpringAkkaIntegrationTest extends AbstractJUnit4SpringContextTests 
         }
         // Response Test for TableActor
         ActorSelection someTable = system.actorSelection("/user/lobby/table-10");
-        FiniteDuration duration = FiniteDuration.create(1, TimeUnit.SECONDS);
+        FiniteDuration duration = FiniteDuration.create(timeout_create, TimeUnit.SECONDS);
         Timeout timeout = Timeout.durationToTimeout(duration);
         Future<Object> result = ask(someTable, new Greeting("John"), timeout);
         Assert.assertEquals("Hello, John", Await.result(result, duration));
@@ -82,15 +86,16 @@ public class SpringAkkaIntegrationTest extends AbstractJUnit4SpringContextTests 
         ActorSelection game = system.actorSelection("/user/lobby/table-1000/game-1000");
 
         //Test Game Response
-        FiniteDuration duration = FiniteDuration.create(1, TimeUnit.SECONDS);
+        FiniteDuration duration = FiniteDuration.create(timeout_create, TimeUnit.SECONDS);
         Timeout timeout = Timeout.durationToTimeout(duration);
         Future<Object> result = ask(game, new Greeting("Game"), timeout);
         Assert.assertEquals("Hello, Game", Await.result(result, duration));
     }
 
     @After
-    public void tearDown() {
-        system.terminate();
+    public void tearDown() throws Exception{
+        // TODO : Shoude be using AKKA TEST KIT for Async Test
+        //system.terminate();
     }
 
 }
