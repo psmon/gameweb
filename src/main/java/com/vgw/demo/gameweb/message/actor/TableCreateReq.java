@@ -1,7 +1,8 @@
 package com.vgw.demo.gameweb.message.actor;
 
-public class TableInfo {
+public class TableCreateReq {
 
+    //TODO : REMOVE
     public enum TableCmd
     {
         CREATE,DELETE,INFO
@@ -13,7 +14,7 @@ public class TableInfo {
     private int playCnt;
     private int viewCnt;
 
-    public TableInfo(int tableId, String name, TableCmd cmd) {
+    public TableCreateReq(int tableId, String name, TableCmd cmd) {
         this.tableId = tableId;
         this.name = name;
         this.cmd = cmd;

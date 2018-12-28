@@ -4,8 +4,11 @@ import akka.actor.AbstractActor;
 import akka.actor.ActorRef;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
+import com.vgw.demo.gameweb.fakegame.Player;
 import com.vgw.demo.gameweb.message.actor.ConnectInfo;
-import com.vgw.demo.gameweb.message.actor.TableInfo;
+import com.vgw.demo.gameweb.message.actor.JoinGameReq;
+import com.vgw.demo.gameweb.message.actor.JoinPlyReq;
+import com.vgw.demo.gameweb.message.actor.TableCreateReq;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.messaging.simp.SimpMessageSendingOperations;
@@ -14,13 +17,24 @@ import org.springframework.stereotype.Component;
 import java.util.HashMap;
 import java.util.Map;
 
-
+// LobbyActor + SocketHandler
 @Component
 @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 public class LobbyActor extends AbstractActor {
 
     private LoggingAdapter log = Logging.getLogger(getContext().getSystem(), this);
     private Map<String, SimpMessageSendingOperations> sessionMgr = new HashMap<>();
+
+    protected void joinGameTable(int tableId,String name,String session){
+        Player ply = new Player();
+        ply.setName(name);
+        ply.setSession(session);
+        findTableByID(tableId).tell(new JoinPlyReq(ply),ActorRef.noSender());
+    }
+
+    protected ActorRef findTableByID(int tableID){
+        return getContext().findChild("table-"+tableID).get();
+    }
 
     @Override
     public AbstractActor.Receive createReceive() {
@@ -35,13 +49,16 @@ public class LobbyActor extends AbstractActor {
                     }
                     sessionMgr.put(c.getSessionId(),c.getWsSender());
                 })
-                .match(TableInfo.class, t->{
+                .match(TableCreateReq.class, t->{
                     // Create a table under the lobby, if you have an Actor named TableManagement, you can move easily.
                     String tableUID = "table-" + t.getTableId();
-                    if(t.getCmd() == TableInfo.TableCmd.CREATE){
+                    if(t.getCmd() == TableCreateReq.TableCmd.CREATE){
                         ActorRef tableActor = getContext().actorOf( TableActor.props(t,this.getSelf() ), tableUID);
                         tableActor.tell(t,ActorRef.noSender());
                     }
+                })
+                .match(JoinGameReq.class, j->{
+                    joinGameTable(j.getTableId(),j.getName(),j.getSession());
                 })
                 .build();
     }

@@ -6,7 +6,7 @@ import akka.actor.ActorSystem;
 import akka.util.Timeout;
 import com.vgw.demo.gameweb.config.AppConfiguration;
 import com.vgw.demo.gameweb.message.Greeting;
-import com.vgw.demo.gameweb.message.actor.TableInfo;
+import com.vgw.demo.gameweb.message.actor.TableCreateReq;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Test;
@@ -54,7 +54,7 @@ public class SpringAkkaIntegrationTest extends AbstractJUnit4SpringContextTests 
         ActorRef lobby = system.actorOf(SPRING_EXTENSION_PROVIDER.get(system).props("lobbyActor"), "testlobby");
         // Create TableActor
         for(int i=0;i<10;i++){
-            lobby.tell( new TableInfo(i,"table-"+i ,TableInfo.TableCmd.CREATE),ActorRef.noSender() );
+            lobby.tell( new TableCreateReq(i,"table-"+i , TableCreateReq.TableCmd.CREATE),ActorRef.noSender() );
         }
     }
 
@@ -63,7 +63,7 @@ public class SpringAkkaIntegrationTest extends AbstractJUnit4SpringContextTests 
         ActorSelection lobby = system.actorSelection("/user/lobby");
         // Create TableActor
         for(int i=10;i<20;i++){
-            lobby.tell( new TableInfo(i,"table-"+i ,TableInfo.TableCmd.CREATE),ActorRef.noSender() );
+            lobby.tell( new TableCreateReq(i,"table-"+i , TableCreateReq.TableCmd.CREATE),ActorRef.noSender() );
         }
         // Response Test for TableActor
         ActorSelection someTable = system.actorSelection("/user/lobby/table-10");
@@ -79,7 +79,7 @@ public class SpringAkkaIntegrationTest extends AbstractJUnit4SpringContextTests 
         ActorSelection lobby = system.actorSelection("/user/lobby");
 
         // Create Unique Table( 1000 )
-        lobby.tell( new TableInfo(1000,"table-"+1000 ,TableInfo.TableCmd.CREATE),ActorRef.noSender() );
+        lobby.tell( new TableCreateReq(1000,"table-"+1000 , TableCreateReq.TableCmd.CREATE),ActorRef.noSender() );
 
         // AutoCreate Game by TableActor
         // Just Game Select

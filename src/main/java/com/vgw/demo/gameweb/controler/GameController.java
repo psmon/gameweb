@@ -37,37 +37,59 @@ public class GameController {
         Object objTableNo = headerAccessor.getSessionAttributes().get("tableNo");
         Integer tableNo = objTableNo!=null? (Integer)objTableNo : -1;
 
-        if(gameMessage.getType()== GameMessage.MessageType.GAME){
-            switch (gameMessage.getContent()){
-                case "join":{
-                    int ftableNo = gameMessage.getNum1();
-                    lobby.joinGameTable(ftableNo,userName,sessionId);
-                    headerAccessor.getSessionAttributes().put("tableNo",Integer.valueOf(ftableNo));
-                }
-                break;
-                case "seat":{
-                    Player player = new Player();
-                    player.setName(userName);
-                    player.setSession(userSession);
-                    //Todo : make UserRepository
-                    player.setTotalMoney(1000);
-                    player.setChips(1000);
-                    lobby.getTable(tableNo).seatUser(player);
-                }
-                break;
+        Boolean isActorMode = false;
+        // OOP VS ACTOR : http://wiki.webnori.com/display/AKKA/Actor
 
+        if(isActorMode==false){
+            // OOP
+            if( gameMessage.getType()== GameMessage.MessageType.GAME){
+                switch (gameMessage.getContent()){
+                    case "join":{
+                        int ftableNo = gameMessage.getNum1();
+                        lobby.joinGameTable(ftableNo,userName,sessionId);
+                        headerAccessor.getSessionAttributes().put("tableNo",Integer.valueOf(ftableNo));
+                    }
+                    break;
+                    case "seat":{
+                        Player player = new Player();
+                        player.setName(userName);
+                        player.setSession(userSession);
+                        //Todo : make UserRepository
+                        player.setTotalMoney(1000);
+                        player.setChips(1000);
+                        lobby.getTable(tableNo).seatUser(player);
+                    }
+                    break;
+
+                }
+                return null;
             }
-            return null;
-        }
-        else if(gameMessage.getType()== GameMessage.MessageType.ACTION){
-            SessionMessage sessionMessage = new SessionMessage();
-            sessionMessage.session=userSession;
-            sessionMessage.name=userName;
-            sessionMessage.gameMessage=gameMessage;
-            lobby.getTable(tableNo).getGame().addGameMessage(sessionMessage);
-            return null;
-        }
+            else if(gameMessage.getType()== GameMessage.MessageType.ACTION){
+                SessionMessage sessionMessage = new SessionMessage();
+                sessionMessage.session=userSession;
+                sessionMessage.name=userName;
+                sessionMessage.gameMessage=gameMessage;
+                lobby.getTable(tableNo).getGame().addGameMessage(sessionMessage);
+                return null;
+            }
 
+        }else{
+            //ACTOR
+            if(gameMessage.getType()== GameMessage.MessageType.GAME){
+                switch (gameMessage.getContent()){
+                    case "join":{
+                    }
+                    break;
+                    case "seat":{
+                    }
+                    break;
+                }
+                return null;
+            }
+            else if(gameMessage.getType()== GameMessage.MessageType.ACTION){
+                return null;
+            }
+        }
         return gameMessage;
     }
 }
