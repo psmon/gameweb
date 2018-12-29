@@ -12,6 +12,7 @@ public class ConnectInfo {
     private String sessionId;
     private SimpMessageSendingOperations    wsSender;
     private Cmd cmd;
+    private int tableNo;
 
     public ConnectInfo(String sessionId, SimpMessageSendingOperations wsSender, Cmd cmd) {
         this.sessionId = sessionId;
@@ -41,5 +42,13 @@ public class ConnectInfo {
 
     public void setCmd(Cmd cmd) {
         this.cmd = cmd;
+    }
+
+    public int getTableNo() {
+        return tableNo;
+    }
+
+    public void setTableNo(int tableNo) {
+        this.tableNo = tableNo;
     }
 }

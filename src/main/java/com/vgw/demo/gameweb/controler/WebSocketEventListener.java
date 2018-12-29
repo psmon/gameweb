@@ -77,9 +77,14 @@ public class WebSocketEventListener {
             // #OOP
             lobby.removeSender(session);
 
+            Object objTableNo = headerAccessor.getSessionAttributes().get("tableNo");
+            int tableNo = objTableNo!=null? (int)objTableNo : -1;
+
             // #ACTOR
             ActorSelection lobby = system.actorSelection("/user/lobby");
-            lobby.tell(new ConnectInfo(session,messagingTemplate, ConnectInfo.Cmd.DISCONET), ActorRef.noSender());
+            ConnectInfo connectInfo = new ConnectInfo(session,messagingTemplate, ConnectInfo.Cmd.DISCONET);
+            connectInfo.setTableNo(tableNo);
+            lobby.tell(connectInfo, ActorRef.noSender());
         }
     }
 

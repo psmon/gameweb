@@ -55,7 +55,6 @@ public class TableActor extends AbstractActor {
         }
     }
 
-
     private Player findUser(String session,Boolean isView){
         Player result=null;
         List<Player> userList = isView ? viewList : playList;
@@ -104,7 +103,7 @@ public class TableActor extends AbstractActor {
     protected void joinTable(Player ply){
         if(findUser(ply.getSession(),true)==null){
             viewList.add(ply);
-            //game.OnConnectPly(ply);
+            gameActor.tell(new JoinPly(ply),ActorRef.noSender());
         }else{
             //game.OnError(ply,"duplicate connect");
         }
@@ -125,7 +124,7 @@ public class TableActor extends AbstractActor {
     protected void cleanUser(String session){
         Player ply = findUser(session,false);
         if(ply!=null){
-            leaveSearUser(ply);
+            leaveSeatUser(ply);
         }
         Player view = findUser(session,true);
         leaveUser(view);
@@ -153,7 +152,7 @@ public class TableActor extends AbstractActor {
         }
     }
 
-    private void leaveSearUser(Player ply){
+    private void leaveSeatUser(Player ply){
         seatOutUser(ply);
         deletePly(ply);
     }
@@ -237,7 +236,13 @@ public class TableActor extends AbstractActor {
                     }
                 })
                 .match(JoinPly.class, j->{
-                    gameActor.tell(j,ActorRef.noSender());
+                    joinTable(j.getPly());
+                })
+                .match(SeatIn.class, s->{
+                    seatUser(s.getPlayer());
+                })
+                .match(SeatOut.class,s->{
+                    cleanUser(s.getPlayer().getSession());
                 })
                 .match(TableInfo.class, t->{
                     TableInfo.Cmd cmd = t.getCmd();

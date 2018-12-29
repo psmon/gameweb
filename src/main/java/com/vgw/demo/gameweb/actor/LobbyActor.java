@@ -48,6 +48,18 @@ public class LobbyActor extends AbstractActor {
         return tableActor;
     }
 
+
+    private ActorRef findTableALL() throws Exception {
+        String tableActorPath = "/user/lobby/*";
+        ActorSelection tableSelect = this.getContext().actorSelection(tableActorPath);
+        FiniteDuration duration = FiniteDuration.create(1, TimeUnit.SECONDS);
+        Future<ActorRef> fut = tableSelect.resolveOne(duration);
+        ActorRef tableActor = Await.result(fut, duration);
+        return tableActor;
+    }
+
+
+
     protected void send(String sessionId,@Payload GameMessage gameMessage){
         SimpMessageSendingOperations messagingTemplate = sessionMgr.get(sessionId);
         SimpMessageHeaderAccessor headerAccessor = SimpMessageHeaderAccessor
@@ -68,6 +80,15 @@ public class LobbyActor extends AbstractActor {
                         log.info("user connected:"+c.getSessionId());
                     }else if(c.getCmd()== ConnectInfo.Cmd.DISCONET){
                         sessionMgr.remove(c.getSessionId());
+                        Player removeUser = new Player();
+                        removeUser.setSession(c.getSessionId());
+
+                        if(c.getTableNo()>0){
+                            findTableByID(c.getTableNo()).tell(new SeatOut(removeUser),ActorRef.noSender());
+                        }else{
+                            findTableALL().tell(new SeatOut(removeUser),ActorRef.noSender());
+                        }
+
                         log.info("user disconnected:"+c.getSessionId());
                     }
                     sessionMgr.put(c.getSessionId(),c.getWsSender());

@@ -70,9 +70,9 @@ public class GameActor extends AbstractActor {
     }
 
     protected void seatPly(Player ply) throws Exception {
-        List<Player> viewList = (List<Player>) gameSend.askToTable(new PlayerList(PlayerList.Cmd.ALL));
+        List<Player> playList = (List<Player>) gameSend.askToTable(new PlayerList(PlayerList.Cmd.PLAYER));
         sendSeatInfo(ply,true,null);
-        for(Player other:viewList){
+        for(Player other:playList){
             if(!ply.getSession().equals(other.getSession())){
                 sendSeatInfo(other,false,ply);
             }
@@ -95,8 +95,8 @@ public class GameActor extends AbstractActor {
         gameMessage.setNum1(gameid);
         gameSend.send(ply,gameMessage);
 
-        List<Player> viewList = (List<Player>) gameSend.askToTable(new PlayerList(PlayerList.Cmd.ALL));
-        for(Player other:viewList){
+        List<Player> playList = (List<Player>) gameSend.askToTable(new PlayerList(PlayerList.Cmd.PLAYER));
+        for(Player other:playList){
             sendSeatInfo(other,false,ply);
         }
     }
@@ -152,6 +152,12 @@ public class GameActor extends AbstractActor {
                 })
                 .match(JoinPly.class, j->{
                     connectPly(j.getPly());
+                })
+                .match(SeatIn.class, s->{
+                    seatPly(s.getPlayer());
+                })
+                .match(SeatOut.class, s->{
+                    seatOutPly(s.getPlayer());
                 })
                 .match(ActionMessage.class, a->{
                     ActionMessage.Cmd cmd = a.getCmd();

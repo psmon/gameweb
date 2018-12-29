@@ -8,7 +8,7 @@ import com.vgw.demo.gameweb.message.GameMessage;
 import com.vgw.demo.gameweb.message.SessionMessage;
 import com.vgw.demo.gameweb.message.actor.ActionMessage;
 import com.vgw.demo.gameweb.message.actor.JoinGame;
-import com.vgw.demo.gameweb.message.actor.JoinPly;
+import com.vgw.demo.gameweb.message.actor.SeatIn;
 import com.vgw.demo.gameweb.thread.Lobby;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,11 +45,10 @@ public class GameController {
         String userSession =  headerAccessor.getUser().getName();
 
         Object objTableNo = headerAccessor.getSessionAttributes().get("tableNo");
-        Integer tableNo = objTableNo!=null? (Integer)objTableNo : -1;
+        int tableNo = objTableNo!=null? (int)objTableNo : -1;
 
-        String tableActorPath = String.format("/user/table-%d",tableNo);
-        String gameActorPath = String.format("/user/table-%d/game-%d",tableNo,tableNo);
-
+        String tableActorPath = String.format("/user/lobby/table-%d",tableNo);
+        String gameActorPath = String.format("/user/lobby/table-%d/game-%d",tableNo,tableNo);
 
         Boolean isActorMode = true;
         // THREAD VS ACTOR : http://wiki.webnori.com/display/AKKA/Actor
@@ -61,7 +60,7 @@ public class GameController {
                     case "join":{
                         int ftableNo = gameMessage.getNum1();
                         lobby.joinGameTable(ftableNo,userName,sessionId);
-                        headerAccessor.getSessionAttributes().put("tableNo",Integer.valueOf(ftableNo));
+                        headerAccessor.getSessionAttributes().put("tableNo",ftableNo);
                     }
                     break;
                     case "seat":{
@@ -93,6 +92,7 @@ public class GameController {
                 switch (gameMessage.getContent()){
                     case "join":{
                         int ftableNo = gameMessage.getNum1();
+                        headerAccessor.getSessionAttributes().put("tableNo",ftableNo);
                         ActorSelection lobbyActor = system.actorSelection("user/lobby");
                         lobbyActor.tell(new JoinGame(ftableNo,userName,userSession),ActorRef.noSender() );
                     }
@@ -105,7 +105,7 @@ public class GameController {
                         player.setTotalMoney(1000);
                         player.setChips(1000);
                         ActorSelection tableActor = system.actorSelection(tableActorPath);
-                        tableActor.tell(new JoinPly(player),ActorRef.noSender());
+                        tableActor.tell(new SeatIn(player),ActorRef.noSender());
                     }
                     break;
                 }
