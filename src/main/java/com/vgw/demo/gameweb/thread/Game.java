@@ -1,5 +1,6 @@
-package com.vgw.demo.gameweb.fakegame;
+package com.vgw.demo.gameweb.thread;
 
+import com.vgw.demo.gameweb.gameobj.Player;
 import com.vgw.demo.gameweb.message.GameMessage;
 import com.vgw.demo.gameweb.message.SessionMessage;
 import org.slf4j.Logger;

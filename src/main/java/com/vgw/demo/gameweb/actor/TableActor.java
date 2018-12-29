@@ -3,7 +3,7 @@ package com.vgw.demo.gameweb.actor;
 import akka.actor.*;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
-import com.vgw.demo.gameweb.fakegame.Player;
+import com.vgw.demo.gameweb.gameobj.Player;
 import com.vgw.demo.gameweb.message.Greeting;
 import com.vgw.demo.gameweb.message.actor.*;
 
@@ -240,7 +240,19 @@ public class TableActor extends AbstractActor {
                     gameActor.tell(j,ActorRef.noSender());
                 })
                 .match(TableInfo.class, t->{
-
+                    TableInfo.Cmd cmd = t.getCmd();
+                    if(cmd==TableInfo.Cmd.SeatCnt){
+                        getSender().tell(playList.size(),ActorRef.noSender());
+                    }else if(cmd==TableInfo.Cmd.DealerNext){
+                        setNextDealer();
+                        getSender().tell(dealer,ActorRef.noSender());
+                    }else if(cmd==TableInfo.Cmd.MinPly){
+                        getSender().tell(minPly,ActorRef.noSender());
+                    }else if(cmd==TableInfo.Cmd.ViewCnt){
+                        getSender().tell(viewList.size(),ActorRef.noSender());
+                    }else if(cmd==TableInfo.Cmd.DealerPos){
+                        getSender().tell(dealer,ActorRef.noSender());
+                    }
                 })
                 .match(PlayerList.class, p->{
                     if(p.getCmd() == PlayerList.Cmd.PLAYER){
@@ -250,7 +262,6 @@ public class TableActor extends AbstractActor {
                     }else if(p.getCmd() == PlayerList.Cmd.ALL){
                         getSender().tell(viewList,ActorRef.noSender());
                     }
-
                 })
                 .build();
     }

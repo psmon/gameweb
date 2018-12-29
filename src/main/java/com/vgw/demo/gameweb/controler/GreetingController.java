@@ -1,7 +1,7 @@
 package com.vgw.demo.gameweb.controler;
 
-import com.vgw.demo.gameweb.fakegame.Lobby;
 import com.vgw.demo.gameweb.message.GameMessage;
+import com.vgw.demo.gameweb.thread.Lobby;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.SendTo;

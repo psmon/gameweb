@@ -1,6 +1,4 @@
-package com.vgw.demo.gameweb.fakegame;
-
-import java.security.Principal;
+package com.vgw.demo.gameweb.gameobj;
 
 public class Player {
     private String  session;

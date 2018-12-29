@@ -1,6 +1,6 @@
 package com.vgw.demo.gameweb;
 
-import com.vgw.demo.gameweb.fakegame.Player;
+import com.vgw.demo.gameweb.gameobj.Player;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;

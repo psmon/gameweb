@@ -7,8 +7,7 @@ import akka.actor.Props;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
 import akka.util.Timeout;
-import com.vgw.demo.gameweb.fakegame.Game;
-import com.vgw.demo.gameweb.fakegame.Player;
+import com.vgw.demo.gameweb.gameobj.Player;
 import com.vgw.demo.gameweb.message.GameMessage;
 import com.vgw.demo.gameweb.message.actor.*;
 import scala.concurrent.Await;
@@ -35,13 +34,12 @@ public class CCUGameActor extends AbstractActor {
     private ActorRef gameActor;
 
     private int gameid;
-    private int tickCnt;
     private int wiinerCard;
     private int betAmmount;
     private int totalBetAmmount;
     private int turnSeq;
     private int maxTurn;
-    private Game.GameState gameState = Game.GameState.WAIT;
+    private GameActor.GameState gameState = GameActor.GameState.WAIT;
 
     private List<Integer> gameCard;
     private GameSend gameSend;
@@ -59,22 +57,15 @@ public class CCUGameActor extends AbstractActor {
     @Override
     public AbstractActor.Receive createReceive() {
         return receiveBuilder()
-                .match(GameTick.class, c -> {
-                    if( (tickCnt%100)==0)
-                        log.info(String.format("Game Tick:%d",gameid));
-
-                    tickCnt++;
-                    if(tickCnt>Integer.MAX_VALUE-1000){
-                        tickCnt=0;
-                        log.debug("Tick Reset");
-                    }
+                .match(GameStateInfo.class, c -> {
+                    gameState = c.getGameState();
                 })
                 .build();
     }
 
 
     protected void readyCard() throws Exception {
-        gameState= Game.GameState.CARD1;
+        gameState= GameActor.GameState.CARD1;
         wiinerCard=1;
         turnSeq=1;
         List<Player> playList = (List<Player>)gameSend.askToTable(new PlayerList(PlayerList.Cmd.PLAYER_DEALER_ORDER));
@@ -166,7 +157,7 @@ public class CCUGameActor extends AbstractActor {
     }
 
     protected void stagestart() throws Exception {
-        gameState= Game.GameState.START;
+        gameState= GameActor.GameState.START;
         totalBetAmmount=0;
         GameMessage message = new GameMessage();
         message.setType(GameMessage.MessageType.GAME);
@@ -177,7 +168,7 @@ public class CCUGameActor extends AbstractActor {
     }
 
     protected void betting() throws Exception {
-        gameState= Game.GameState.BET;
+        gameState= GameActor.GameState.BET;
         float aniDelay=0.0f;
         List<Player> playList = (List<Player>)gameSend.askToTable(new PlayerList(PlayerList.Cmd.PLAYER_DEALER_ORDER));
 
@@ -358,7 +349,7 @@ public class CCUGameActor extends AbstractActor {
     }
 
     protected void showAllCards() throws Exception {
-        gameState= Game.GameState.RESULT;
+        gameState= GameActor.GameState.RESULT;
         float delayAni=0.0f;
         List<Player> playList = (List<Player>)gameSend.askToTable(new PlayerList(PlayerList.Cmd.PLAYER_DEALER_ORDER));
 
@@ -376,7 +367,7 @@ public class CCUGameActor extends AbstractActor {
     }
 
     protected void gameResult() throws Exception {
-        gameState= Game.GameState.RESULT;
+        gameState= GameActor.GameState.RESULT;
         Player winPly=null;
         List<Player> playList = (List<Player>)gameSend.askToTable(new PlayerList(PlayerList.Cmd.PLAYER_DEALER_ORDER));
 

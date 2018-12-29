@@ -2,9 +2,10 @@ package com.vgw.demo.gameweb.actor;
 
 import akka.actor.AbstractActor;
 import akka.actor.ActorRef;
+import akka.actor.ActorSelection;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
-import com.vgw.demo.gameweb.fakegame.Player;
+import com.vgw.demo.gameweb.gameobj.Player;
 import com.vgw.demo.gameweb.message.GameMessage;
 import com.vgw.demo.gameweb.message.actor.*;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
@@ -14,9 +15,13 @@ import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.messaging.simp.SimpMessageType;
 import org.springframework.stereotype.Component;
+import scala.concurrent.Await;
+import scala.concurrent.Future;
+import scala.concurrent.duration.FiniteDuration;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 // LobbyActor + SocketHandler
 @Component
@@ -27,17 +32,21 @@ public class LobbyActor extends AbstractActor {
     private LoggingAdapter log = Logging.getLogger(getContext().getSystem(), this);
     private Map<String, SimpMessageSendingOperations> sessionMgr = new HashMap<>();
 
-    private void joinGameTable(int tableId,String name,String session){
+    private void joinGameTable(int tableId,String name,String session) throws Exception {
         Player ply = new Player();
         ply.setName(name);
         ply.setSession(session);
         findTableByID(tableId).tell(new JoinPly(ply),ActorRef.noSender());
     }
 
-    private ActorRef findTableByID(int tableID){
-        return getContext().findChild("table-"+tableID).get();
+    private ActorRef findTableByID(int tableID) throws Exception {
+        String tableActorPath = "/user/lobby/table-"+tableID;
+        ActorSelection tableSelect = this.getContext().actorSelection(tableActorPath);
+        FiniteDuration duration = FiniteDuration.create(1, TimeUnit.SECONDS);
+        Future<ActorRef> fut = tableSelect.resolveOne(duration);
+        ActorRef tableActor = Await.result(fut, duration);
+        return tableActor;
     }
-
 
     protected void send(String sessionId,@Payload GameMessage gameMessage){
         SimpMessageSendingOperations messagingTemplate = sessionMgr.get(sessionId);

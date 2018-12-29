@@ -3,7 +3,7 @@ package com.vgw.demo.gameweb.actor;
 import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
 import akka.util.Timeout;
-import com.vgw.demo.gameweb.fakegame.Player;
+import com.vgw.demo.gameweb.gameobj.Player;
 import com.vgw.demo.gameweb.message.GameMessage;
 import com.vgw.demo.gameweb.message.actor.MessageWS;
 import com.vgw.demo.gameweb.message.actor.PlayerList;

@@ -1,6 +1,6 @@
 package com.vgw.demo.gameweb.message.actor;
 
-import com.vgw.demo.gameweb.fakegame.Player;
+import com.vgw.demo.gameweb.gameobj.Player;
 
 public class JoinPly {
 

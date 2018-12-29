@@ -1,8 +1,6 @@
-package com.vgw.demo.gameweb.fakegame;
+package com.vgw.demo.gameweb.thread;
 
-import java.util.HashMap;
-import java.util.Map;
-
+import com.vgw.demo.gameweb.gameobj.Player;
 import com.vgw.demo.gameweb.message.GameMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,6 +9,9 @@ import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.stereotype.Component;
+
+import java.util.HashMap;
+import java.util.Map;
 
 // TODO : More Clear using Depency Injection
 // https://blog.marcnuri.com/field-injection-is-not-recommended/

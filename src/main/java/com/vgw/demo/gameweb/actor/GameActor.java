@@ -3,12 +3,12 @@ package com.vgw.demo.gameweb.actor;
 import akka.actor.*;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
-import com.vgw.demo.gameweb.fakegame.Game;
-import com.vgw.demo.gameweb.fakegame.Player;
+import com.vgw.demo.gameweb.gameobj.Player;
 import com.vgw.demo.gameweb.message.GameMessage;
 import com.vgw.demo.gameweb.message.Greeting;
 import com.vgw.demo.gameweb.message.SessionMessage;
 import com.vgw.demo.gameweb.message.actor.*;
+import com.vgw.demo.gameweb.thread.Game;
 import scala.concurrent.Await;
 import scala.concurrent.Future;
 import scala.concurrent.duration.FiniteDuration;
@@ -152,6 +152,17 @@ public class GameActor extends AbstractActor {
                 })
                 .match(JoinPly.class, j->{
                     connectPly(j.getPly());
+                })
+                .match(ActionMessage.class, a->{
+                    ActionMessage.Cmd cmd = a.getCmd();
+                    if(cmd== ActionMessage.Cmd.ADD){
+                        addGameMessage(a.getSessionMessage());
+                    }else if(cmd== ActionMessage.Cmd.PEEK){
+                        SessionMessage sessionMessage = peekGameMessage();
+                        getSender().tell(sessionMessage,ActorRef.noSender());
+                    }else if(cmd== ActionMessage.Cmd.CLEAR){
+                        actionMessage.clear();
+                    }
                 })
                 .build();
     }
