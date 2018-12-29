@@ -2,11 +2,11 @@ package com.vgw.demo.gameweb.message.actor;
 
 import com.vgw.demo.gameweb.fakegame.Player;
 
-public class JoinPlyReq {
+public class JoinPly {
 
     private Player ply;
 
-    public JoinPlyReq(Player ply) {
+    public JoinPly(Player ply) {
         this.ply = ply;
     }
 

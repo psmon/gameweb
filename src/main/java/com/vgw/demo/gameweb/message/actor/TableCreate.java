@@ -1,20 +1,20 @@
 package com.vgw.demo.gameweb.message.actor;
 
-public class TableCreateReq {
+public class TableCreate {
 
     //TODO : REMOVE
-    public enum TableCmd
+    public enum Cmd
     {
         CREATE,DELETE,INFO
-    };
+    }
 
     private int tableId;
     private String name;
-    private TableCmd cmd;
+    private Cmd cmd;
     private int playCnt;
     private int viewCnt;
 
-    public TableCreateReq(int tableId, String name, TableCmd cmd) {
+    public TableCreate(int tableId, String name, Cmd cmd) {
         this.tableId = tableId;
         this.name = name;
         this.cmd = cmd;
@@ -36,11 +36,11 @@ public class TableCreateReq {
         this.name = name;
     }
 
-    public TableCmd getCmd() {
+    public Cmd getCmd() {
         return cmd;
     }
 
-    public void setCmd(TableCmd cmd) {
+    public void setCmd(Cmd cmd) {
         this.cmd = cmd;
     }
 

@@ -1,11 +1,11 @@
 package com.vgw.demo.gameweb.message.actor;
 
-public class JoinGameReq {
+public class JoinGame {
     private int tableId;
     private String name;
     private String session;
 
-    public JoinGameReq(int tableId, String name, String session) {
+    public JoinGame(int tableId, String name, String session) {
         this.tableId = tableId;
         this.name = name;
         this.session = session;

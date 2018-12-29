@@ -5,50 +5,60 @@ import akka.event.Logging;
 import akka.event.LoggingAdapter;
 import com.vgw.demo.gameweb.fakegame.Player;
 import com.vgw.demo.gameweb.message.Greeting;
-import com.vgw.demo.gameweb.message.actor.ConnectInfo;
-import com.vgw.demo.gameweb.message.actor.GameTick;
-import com.vgw.demo.gameweb.message.actor.JoinPlyReq;
-import com.vgw.demo.gameweb.message.actor.TableCreateReq;
+import com.vgw.demo.gameweb.message.actor.*;
 
 import java.time.Duration;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
-
+@SuppressWarnings("Duplicates")
 public class TableActor extends AbstractActor {
-    private LoggingAdapter log = Logging.getLogger(getContext().getSystem(), this);
 
+    private LoggingAdapter log = Logging.getLogger(getContext().getSystem(), this);
     private ActorRef lobbyActor;
     private ActorRef gameActor;
     private Cancellable gameCancellable;
-
     private int tableId;
     private String name;
     private int maxPly;
     private int minPly;
     private int dealer;
 
-    List<Player> playList;
-    List<Player>    viewList;
-    ArrayList<Boolean> avableSeat;
+    private List<Player> playList;
+    private List<Player> viewList;
+    private ArrayList<Boolean> avableSeat;
 
     private ActorSystem system;
 
     // Props == Object creation hint
-    static public Props props(TableCreateReq tableCreateReq, ActorRef lobbyActor) {
-        return Props.create(TableActor.class, () -> new TableActor(tableCreateReq, lobbyActor));
+    static public Props props(TableCreate tableCreate, ActorRef lobbyActor) {
+        return Props.create(TableActor.class, () -> new TableActor(tableCreate, lobbyActor));
     }
 
-    public TableActor(TableCreateReq tableCreateReq, ActorRef lobbyActor){
-        this.tableId= tableCreateReq.getTableId();
+    TableActor(TableCreate tableCreate, ActorRef lobbyActor){
+        this.tableId= tableCreate.getTableId();
         this.lobbyActor=lobbyActor;
+        initTable();
         system = getContext().getSystem();
     }
 
+    private void initTable(){
+        maxPly=7;
+        minPly=3;
+        dealer=-1;
+        playList = new ArrayList<>();
+        viewList = new ArrayList<>();
+        avableSeat = new ArrayList<>();
+        for(int idx=0;idx<maxPly;idx++){
+            avableSeat.add(true);
+        }
+    }
 
-    public Player findUser(String session,Boolean isView){
+
+    private Player findUser(String session,Boolean isView){
         Player result=null;
-        List<Player> userList = isView ==true ? viewList : playList;
+        List<Player> userList = isView ? viewList : playList;
 
         for(Player ply:userList){
             if(ply.getSession().equals(session))
@@ -57,7 +67,7 @@ public class TableActor extends AbstractActor {
         return result;
     }
 
-    public Player findUser(int setNo){
+    protected Player findUser(int setNo){
         Player result=null;
         List<Player> userList = playList;
 
@@ -68,8 +78,8 @@ public class TableActor extends AbstractActor {
         return result;
     }
 
-    protected void updatePly(Player plyayer,Boolean isView){
-        List<Player> userList = isView ==true ? viewList : playList;
+    private void updatePly(Player plyayer,Boolean isView){
+        List<Player> userList = isView ? viewList : playList;
         for(Player ply:userList){
             if(ply.getSession().equals(plyayer.getSession())){
                 ply=plyayer;
@@ -78,16 +88,16 @@ public class TableActor extends AbstractActor {
         }
     }
 
-    protected void deletePly(Player plyayer){
+    private void deletePly(Player plyayer){
         avableSeat.set(plyayer.getSeatNo(),true);
         playList.remove(plyayer);
     }
 
-    protected void deleteViewPly(Player plyayer){
+    private void deleteViewPly(Player plyayer){
         viewList.remove(plyayer);
     }
 
-    protected void addUser(Player ply){
+    private void addUser(Player ply){
         playList.add(ply);
     }
 
@@ -100,6 +110,109 @@ public class TableActor extends AbstractActor {
         }
     }
 
+    private int getAvableSeatAnyAndReseved(){
+        int searchIdx=-1;
+        for(int idx=0;idx<maxPly;idx++){
+            if(avableSeat.get(idx)){
+                avableSeat.set(idx,false);
+                searchIdx=idx;
+                break;
+            }
+        }
+        return searchIdx;
+    }
+
+    protected void cleanUser(String session){
+        Player ply = findUser(session,false);
+        if(ply!=null){
+            leaveSearUser(ply);
+        }
+        Player view = findUser(session,true);
+        leaveUser(view);
+    }
+
+    private void seatOutUser(Player ply){
+        gameActor.tell( new SeatOut(ply),ActorRef.noSender() );
+        playList.remove(ply);
+    }
+
+    protected void seatUser(Player ply){
+        if(findUser(ply.getSession(),false)==null){
+            if(playList.size()<maxPly){
+                int revSeatNo = getAvableSeatAnyAndReseved();
+                if(revSeatNo>-1){
+                    //Auto Seat
+                    ply.setSeatNo(revSeatNo);
+                    addUser(ply);
+                    gameActor.tell(new SeatIn(ply),ActorRef.noSender());
+                }
+            }
+        }else{
+            //Reconnect
+            updatePly(ply,false);
+        }
+    }
+
+    private void leaveSearUser(Player ply){
+        seatOutUser(ply);
+        deletePly(ply);
+    }
+
+    private void leaveUser(Player ply){
+        deleteViewPly(ply);
+    }
+
+    protected int getSeatCnt(){
+        return playList.size();
+    }
+
+    protected void setNextDealer(){
+        int nextDealer=-1;
+        List<Player> sortList = new ArrayList<>(playList);
+        Collections.sort(sortList, (a, b) -> a.getSeatNo() < b.getSeatNo() ? -1 : a.getSeatNo() == b.getSeatNo() ? 0 : 1);
+
+        boolean findDealer = false;
+        Player firstPly=sortList.get(0);
+        for(Player ply:sortList){
+            if(findDealer){
+                nextDealer=ply.getSeatNo();
+                break;
+            }
+            if(dealer == ply.getSeatNo()){
+                findDealer=true;
+            }
+        }
+
+        if(nextDealer==-1){
+            nextDealer=firstPly.getSeatNo();
+        }
+
+        dealer=nextDealer;
+    }
+
+    private List<Player> getPlayList(boolean isDealerOrder) {
+        List<Player> listOrder;
+        if(isDealerOrder){
+            List<Player> sortList = new ArrayList<>(playList);
+            List<Player> sortDealerList = new ArrayList<>();
+            List<Player> addLast = new ArrayList<>();
+            Collections.sort(sortList, (a, b) -> a.getSeatNo() < b.getSeatNo() ? -1 : a.getSeatNo() == b.getSeatNo() ? 0 : 1);
+            for(Player ply:sortList){
+                if(dealer<= ply.getSeatNo()){
+                    sortDealerList.add(ply);
+                }else{
+                    addLast.add(ply);
+                }
+            }
+            sortDealerList.addAll(addLast);
+            listOrder=sortDealerList;
+        }else{
+            listOrder=playList;
+        }
+        return listOrder;
+    }
+
+
     @Override
     public AbstractActor.Receive createReceive() {
         return receiveBuilder()
@@ -109,8 +222,8 @@ public class TableActor extends AbstractActor {
                     String name = c.getName();
                     getSender().tell("Hello, " + name ,getSelf()); // response for test
                 })
-                .match(TableCreateReq.class, t->{
-                    if(t.getCmd()== TableCreateReq.TableCmd.CREATE){
+                .match(TableCreate.class, t->{
+                    if(t.getCmd()== TableCreate.Cmd.CREATE){
                         String gameUID = "game-" + tableId;
                         gameActor = getContext().actorOf( GameActor.props(t,getSelf()), gameUID);
                         log.info(String.format("Create Table:%d",t.getTableId()));
@@ -118,12 +231,25 @@ public class TableActor extends AbstractActor {
                         gameCancellable = system.scheduler().schedule(Duration.ZERO,
                                 Duration.ofMillis(100), gameActor, new GameTick(),
                                 system.dispatcher(), null);
-                    }else if(t.getCmd() == TableCreateReq.TableCmd.DELETE){
+                    }else if(t.getCmd() == TableCreate.Cmd.DELETE){
                         //TODO: Just Cancel or Ask for Stop game
                         gameCancellable.cancel();
                     }
                 })
-                .match(JoinPlyReq.class, j->{
+                .match(JoinPly.class, j->{
+                    gameActor.tell(j,ActorRef.noSender());
+                })
+                .match(TableInfo.class, t->{
+
+                })
+                .match(PlayerList.class, p->{
+                    if(p.getCmd() == PlayerList.Cmd.PLAYER){
+                        getSender().tell(getPlayList(false),ActorRef.noSender());
+                    }else if(p.getCmd() == PlayerList.Cmd.PLAYER_DEALER_ORDER){
+                        getSender().tell(getPlayList(true),ActorRef.noSender());
+                    }else if(p.getCmd() == PlayerList.Cmd.ALL){
+                        getSender().tell(viewList,ActorRef.noSender());
+                    }
 
                 })
                 .build();

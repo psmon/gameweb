@@ -15,18 +15,19 @@ import java.util.*;
 
 @Component
 @Scope("prototype")
+@SuppressWarnings("Duplicates")
 public class Game extends Thread{
 
     public enum GameState
     {
         WAIT,START,READY, CARD1,BET,TURN1,TURN2 ,RESULT,CLOSE
-    };
+    }
 
-    Queue<SessionMessage> actionMessage;
-    List<Integer>  gameCard;
+    private Queue<SessionMessage> actionMessage;
+    private List<Integer>  gameCard;
 
     private int loopCnt =0;
-    protected GameState gameState = GameState.WAIT;
+    private GameState gameState = GameState.WAIT;
     private Table table;
 
     private int wiinerCard;
@@ -59,7 +60,7 @@ public class Game extends Thread{
         betAmmount=10;
     }
 
-    protected boolean isStartGame(){
+    private boolean isStartGame(){
         boolean hasNext = false;
         if( gameState == GameState.WAIT ){
             if( table.getSeatCnt() > table.getMinPly()-1 ){
@@ -74,7 +75,7 @@ public class Game extends Thread{
         return hasNext;
     }
 
-    protected void readyCard(){
+    private void readyCard(){
         gameState=GameState.CARD1;
         wiinerCard=1;
         turnSeq=1;
@@ -87,8 +88,8 @@ public class Game extends Thread{
         List<Integer> otherCards = new ArrayList<>();
         //Simbple Card Generator
         while (true){
-            Integer otherCArd = random.nextInt(maxCard);
-            if(wiinerCard!=otherCArd) otherCards.add(otherCArd);
+            int otherCard = random.nextInt(maxCard);
+            if(wiinerCard!=otherCard) otherCards.add(otherCard);
             if(otherCards.size()==3) break;
         }
         // Card Split
@@ -164,7 +165,7 @@ public class Game extends Thread{
         }
     }
 
-    protected void stagestart(){
+    private void stagestart(){
         gameState=GameState.START;
         totalBetAmmount=0;
         GameMessage message = new GameMessage();
@@ -175,7 +176,7 @@ public class Game extends Thread{
         updateDealer(table.getDealer());
     }
 
-    protected void betting(){
+    private void betting(){
         gameState=GameState.BET;
         float aniDelay=0.0f;
         for(Player ply:table.getPlayList(true)){
@@ -195,7 +196,7 @@ public class Game extends Thread{
         }
     }
 
-    protected void updateDealer(int seat){
+    private void updateDealer(int seat){
         GameMessage indicator = new GameMessage();
         indicator.setType(GameMessage.MessageType.GAME);
         indicator.setContent("dealer");
@@ -203,7 +204,7 @@ public class Game extends Thread{
         sendAll(indicator);
     }
 
-    protected void indicator(int focusSeat){
+    private void indicator(int focusSeat){
         //indicator
         GameMessage indicator = new GameMessage();
         indicator.setType(GameMessage.MessageType.GAME);
@@ -212,7 +213,7 @@ public class Game extends Thread{
         sendAll(indicator);
     }
 
-    protected void swapcard(Player ply,int targetSeatNo){
+    private void swapcard(Player ply,int targetSeatNo){
         int srcSeatNo=ply.getSeatNo();
         //int targetSeatNo=actionRes.getNum1();
         int tmpcard = gameCard.get(srcSeatNo);
@@ -226,7 +227,7 @@ public class Game extends Thread{
 
     }
 
-    protected void reqAction(){
+    private void reqAction(){
         int timeBank=12;
         int idx=0;
         boolean bBotMode=true;
@@ -273,7 +274,7 @@ public class Game extends Thread{
     }
 
     @SuppressWarnings("Duplicates")
-    protected void changedCard(Player srcPly,Player targetPly){
+    private void changedCard(Player srcPly,Player targetPly){
         GameMessage changedInfo = new GameMessage();
         changedInfo.setType(GameMessage.MessageType.GAME);
         changedInfo.setContent("changed");
@@ -291,7 +292,7 @@ public class Game extends Thread{
         send(targetPly,changedInfo2);
     }
 
-    protected void swapCard(int srcSeatNo,int targetSeatNo){
+    private void swapCard(int srcSeatNo,int targetSeatNo){
         //Public Changed Info
         GameMessage changedInfo = new GameMessage();
         changedInfo.setType(GameMessage.MessageType.GAME);
@@ -302,7 +303,7 @@ public class Game extends Thread{
         sendAll(changedInfo);
     }
 
-    protected void turn(int turnSeq){
+    private void turn(int turnSeq){
         this.turnSeq=turnSeq;
         actionMessage.clear();
         logger.info("===== turn:"+turnSeq);
@@ -313,7 +314,7 @@ public class Game extends Thread{
         }
     }
 
-    protected void showAllCards(){
+    private void showAllCards(){
         gameState=GameState.RESULT;
         float delayAni=0.0f;
         for(Player ply:table.getPlayList(true)){
@@ -329,7 +330,7 @@ public class Game extends Thread{
         }
     }
 
-    protected void gameResult(){
+    private void gameResult(){
         gameState=GameState.RESULT;
         Player winPly=null;
         //TODO: gamecard to plycard
@@ -349,19 +350,19 @@ public class Game extends Thread{
         waitForAni(5000); //Result Time..
     }
 
-    protected void waitForAni(int time){
+    private void waitForAni(int time){
         try{
             Thread.sleep(time);
         }catch (Exception e){
         }
     }
 
-    protected GameMessage waitForAction(Player ply,int waitCnt){
+    private GameMessage waitForAction(Player ply,int waitCnt){
         GameMessage action = null;
         for(int i=0;i<waitCnt;i++){
             SessionMessage peekMsg= actionMessage.peek();
             if(peekMsg!=null){
-                if(peekMsg.session==ply.getSession() ){
+                if(peekMsg.session.equals(ply.getSession())){
                     gameProcess(peekMsg);
                     action=peekMsg.gameMessage;
                     break;
@@ -375,10 +376,10 @@ public class Game extends Thread{
         return action;
     }
 
-    protected void otherProcess(SessionMessage gameMessage){
+    private void otherProcess(SessionMessage gameMessage){
     }
 
-    protected void gameProcess(SessionMessage gameMessage){
+    private void gameProcess(SessionMessage gameMessage){
 
     }
 
@@ -480,7 +481,7 @@ public class Game extends Thread{
     }
 
 
-    protected void sendSeatInfo(Player ply,Boolean isAll,Player target){
+    private void sendSeatInfo(Player ply,Boolean isAll,Player target){
         GameMessage gameMessage = new GameMessage();
         gameMessage.setType(GameMessage.MessageType.GAME);
         gameMessage.setContent("seat" );
@@ -524,7 +525,7 @@ public class Game extends Thread{
         //testDemoPacket(ply);
     }
 
-    public void OnError(Player ply,String errorMsg){
+    protected void OnError(Player ply,String errorMsg){
         GameMessage gameMessage = new GameMessage();
         gameMessage.setType(GameMessage.MessageType.ERROR);
         gameMessage.setContent("error!!"+errorMsg);
@@ -532,14 +533,14 @@ public class Game extends Thread{
     }
 
 
-    protected void chkGame(boolean isDebug){
+    private void chkGame(boolean isDebug){
         if(isDebug)
             logger.debug(String.format("GameState:%s Tableid:%d",gameState.toString(),table.getTableId() ));
         else
             logger.info(String.format("GameState:%s Tableid:%d",gameState.toString(),table.getTableId() ));
     }
 
-    protected void sendAll(@Payload GameMessage gameMessage){
+    private void sendAll(@Payload GameMessage gameMessage){
         for(Player ply:table.viewList){
             send(ply,gameMessage);
         }

@@ -4,19 +4,19 @@ import org.springframework.messaging.simp.SimpMessageSendingOperations;
 
 public class ConnectInfo {
 
-    public enum ConnectCmd
+    public enum Cmd
     {
         CONNECT,DISCONET
-    };
+    }
 
     private String sessionId;
     private SimpMessageSendingOperations    wsSender;
-    private ConnectCmd connectCmd;
+    private Cmd cmd;
 
-    public ConnectInfo(String sessionId, SimpMessageSendingOperations wsSender, ConnectCmd connectCmd) {
+    public ConnectInfo(String sessionId, SimpMessageSendingOperations wsSender, Cmd cmd) {
         this.sessionId = sessionId;
         this.wsSender = wsSender;
-        this.connectCmd = connectCmd;
+        this.cmd = cmd;
     }
 
     public String getSessionId() {
@@ -35,11 +35,11 @@ public class ConnectInfo {
         this.wsSender = wsSender;
     }
 
-    public ConnectCmd getConnectCmd() {
-        return connectCmd;
+    public Cmd getCmd() {
+        return cmd;
     }
 
-    public void setConnectCmd(ConnectCmd connectCmd) {
-        this.connectCmd = connectCmd;
+    public void setCmd(Cmd cmd) {
+        this.cmd = cmd;
     }
 }
