@@ -16,4 +16,8 @@ public class PlayerInfo {
     public String getSessionId() {
         return sessionId;
     }
+
+    public Integer getSeatNo() {
+        return seatNo;
+    }
 }

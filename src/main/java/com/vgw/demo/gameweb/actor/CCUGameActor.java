@@ -1,6 +1,5 @@
 package com.vgw.demo.gameweb.actor;
 
-
 import akka.actor.AbstractActor;
 import akka.actor.ActorRef;
 import akka.actor.Props;
@@ -29,21 +28,15 @@ import static akka.pattern.Patterns.ask;
 public class CCUGameActor extends AbstractActor {
 
     private LoggingAdapter log = Logging.getLogger(getContext().getSystem(), this);
-    private ActorRef tableActor;
-    private ActorRef lobbyActor;
     private ActorRef gameActor;
-
-    private int gameid;
-    private int wiinerCard;
-    private int betAmmount;
+    private int winnerCard;
+    private int betAmount;
     private int totalBetAmmount;
     private int turnSeq;
     private int maxTurn;
     private GameActor.GameState gameState = GameActor.GameState.WAIT;
-
     private List<Integer> gameCard;
     private GameSend gameSend;
-
 
     static public Props props(GameSend gameSend) {
         return Props.create(CCUGameActor.class, () -> new CCUGameActor(gameSend));
@@ -52,21 +45,67 @@ public class CCUGameActor extends AbstractActor {
     CCUGameActor(GameSend gameSend) {
         this.gameSend = gameSend;
         gameActor = getContext().getParent();
+        turnSeq=0;
+        maxTurn=2;
+        gameCard = new ArrayList<>();
+        betAmount =10;
+    }
+
+    protected void runGameStage(){
+        try{
+            stagestart();
+            int playingCnt = (int)gameSend.askToTable(new TableInfo(TableInfo.Cmd.SeatCnt));
+            log.info("Game Bet Card");
+            waitForAni(1000);
+            betting();
+            waitForAni(3000 + (playingCnt*1000) );
+            log.info("Game Ready Card");
+            readyCard();
+            for(int turnCnt=0;turnCnt<maxTurn;turnCnt++){
+                turn(turnCnt);
+                waitForAni(1000);
+            }
+            log.info("Game ShowDown");
+            showAllCards();
+            waitForAni(3000 + (playingCnt*1000) );
+            log.info("Game Winner Info");
+            gameResult();
+            gameState= GameActor.GameState.WAIT;
+
+        }catch (Exception e){
+            log.error("Error-ResumeGame:"+e.toString());
+            gameState= GameActor.GameState.WAIT;
+        }
+        gameActor.tell(new GameStateInfo(gameState),ActorRef.noSender());
+
     }
 
     @Override
     public AbstractActor.Receive createReceive() {
         return receiveBuilder()
                 .match(GameStateInfo.class, c -> {
-                    gameState = c.getGameState();
+                    if(c.getGameState()== GameActor.GameState.START){
+                        gameState = c.getGameState();
+                        runGameStage();
+                    }
                 })
                 .build();
     }
 
+    private void waitForAni(int time){
+        // Dealy strategy for  Animation
+        // - Thread Sleep ( Here )
+        // - Send Delay By Server : gameSend.sendAll(gameMessage,5000 <--delay  );
+        // - Delay By Client : gameMessage.setDelay(aniDelay);
+        try{
+            Thread.sleep(time);
+        }catch (Exception e){
+        }
+    }
 
     protected void readyCard() throws Exception {
         gameState= GameActor.GameState.CARD1;
-        wiinerCard=1;
+        winnerCard =1;
         turnSeq=1;
         List<Player> playList = (List<Player>)gameSend.askToTable(new PlayerList(PlayerList.Cmd.PLAYER_DEALER_ORDER));
 
@@ -75,12 +114,12 @@ public class CCUGameActor extends AbstractActor {
         Random random = new Random();
         int maxCard=7;
 
-        wiinerCard = random.nextInt(maxCard);
+        winnerCard = random.nextInt(maxCard);
         List<Integer> otherCards = new ArrayList<>();
         //Simbple Card Generator
         while (true){
             Integer otherCArd = random.nextInt(maxCard);
-            if(wiinerCard!=otherCArd) otherCards.add(otherCArd);
+            if(winnerCard !=otherCArd) otherCards.add(otherCArd);
             if(otherCards.size()==3) break;
         }
         // Card Split
@@ -91,28 +130,28 @@ public class CCUGameActor extends AbstractActor {
         // 7 = 1,2,2,2
         switch (playNum){
             case 2: // for Only Test
-                gameCard.add(wiinerCard);
+                gameCard.add(winnerCard);
                 gameCard.add(otherCards.get(0));
             case 3:
-                gameCard.add(wiinerCard);
+                gameCard.add(winnerCard);
                 gameCard.add(otherCards.get(0));
                 gameCard.add(otherCards.get(0));
                 break;
             case 4:
-                gameCard.add(wiinerCard);
+                gameCard.add(winnerCard);
                 gameCard.add(otherCards.get(0));
                 gameCard.add(otherCards.get(0));
                 gameCard.add(otherCards.get(0));
                 break;
             case 5:
-                gameCard.add(wiinerCard);
+                gameCard.add(winnerCard);
                 gameCard.add(otherCards.get(0));
                 gameCard.add(otherCards.get(0));
                 gameCard.add(otherCards.get(1));
                 gameCard.add(otherCards.get(1));
                 break;
             case 6:
-                gameCard.add(wiinerCard);
+                gameCard.add(winnerCard);
                 gameCard.add(otherCards.get(0));
                 gameCard.add(otherCards.get(0));
                 gameCard.add(otherCards.get(1));
@@ -120,7 +159,7 @@ public class CCUGameActor extends AbstractActor {
                 gameCard.add(otherCards.get(1));
                 break;
             case 7:
-                gameCard.add(wiinerCard);
+                gameCard.add(winnerCard);
                 gameCard.add(otherCards.get(0));
                 gameCard.add(otherCards.get(0));
                 gameCard.add(otherCards.get(1));
@@ -163,8 +202,8 @@ public class CCUGameActor extends AbstractActor {
         message.setType(GameMessage.MessageType.GAME);
         message.setContent("stagestart");
         gameSend.sendAll(message);
-        Integer newxtDealer = (Integer)gameSend.askToTable(new TableInfo(TableInfo.Cmd.DealerNext));
-        updateDealer(newxtDealer);
+        Integer netxtDealer = (Integer)gameSend.askToTable(new TableInfo(TableInfo.Cmd.DealerNext));
+        updateDealer(netxtDealer);
     }
 
     protected void betting() throws Exception {
@@ -173,15 +212,15 @@ public class CCUGameActor extends AbstractActor {
         List<Player> playList = (List<Player>)gameSend.askToTable(new PlayerList(PlayerList.Cmd.PLAYER_DEALER_ORDER));
 
         for(Player ply:playList){
-            ply.updateChips(-betAmmount);
+            ply.updateChips(-betAmount);
             GameMessage message = new GameMessage();
             message.setType(GameMessage.MessageType.GAME);
             message.setSeatno(ply.getSeatNo());
             message.setContent("bet");
             message.setDelay(aniDelay);
-            message.setNum1(betAmmount);
+            message.setNum1(betAmount);
             message.setNum2(ply.getChips());
-            totalBetAmmount+=betAmmount;
+            totalBetAmmount+= betAmount;
             aniDelay+=0.3f;
             // Todo: SeatOut for LoseMoney
             //send(ply,message);
@@ -214,6 +253,7 @@ public class CCUGameActor extends AbstractActor {
         gameCard.set(targetSeatNo,tmpcard);
 
         swapCard(srcSeatNo,targetSeatNo);
+        waitForAni(3000);
         Player targetPly = (Player)gameSend.askToTable(new PlayerInfo(targetSeatNo));
         changedCard(ply,targetPly);
     }
@@ -244,15 +284,13 @@ public class CCUGameActor extends AbstractActor {
         changedInfo2.setNum1( gameCard.get(targetPly.getSeatNo()));
         changedInfo2.setNum2( srcPly.getSeatNo() );
         // delay send
-        gameSend.send(srcPly,changedInfo,3000);
-        gameSend.send(targetPly,changedInfo2,3000);
+        gameSend.send(srcPly,changedInfo);
+        gameSend.send(targetPly,changedInfo2);
     }
 
     protected GameMessage waitForAction(Player ply,Integer timeBank){
-
         GameMessage result = null;
         try{
-
             Boolean isExpectMessage = false;
             Integer onceTimeOut = 2;
             Integer tryCnt = 1;
@@ -269,7 +307,7 @@ public class CCUGameActor extends AbstractActor {
                     }
                 }
                 catch (TimeoutException ex){
-                    log.debug("wait for user message:"+tryCnt);
+                    log.info("wait for user message:"+tryCnt);
                 }
                 tryCnt++;
                 totalTimeOut-=onceTimeOut;
@@ -281,6 +319,7 @@ public class CCUGameActor extends AbstractActor {
                 }
             }
         }catch (Exception e){
+            log.info(e.getMessage());
             result =null;
         }
 
@@ -315,11 +354,11 @@ public class CCUGameActor extends AbstractActor {
             }
             if(!isChangeCard){
                 if(!bBotMode){
-                    //waitForAni(1000);
+                    waitForAni(1000);
                     GameMessage timeOutMessage=new GameMessage();
                     timeOutMessage.setType(GameMessage.MessageType.GAME);
                     timeOutMessage.setContent("actionend");
-                    gameSend.send(ply,timeOutMessage,1000);
+                    gameSend.send(ply,timeOutMessage);
                 }else{
                     // Auto Change:AI MODE...
                     List<Integer> otherUsers = new ArrayList<>();
@@ -373,7 +412,7 @@ public class CCUGameActor extends AbstractActor {
 
         //TODO: gamecard to plycard
         for(Player ply:playList){
-            if( gameCard.get(ply.getSeatNo())==wiinerCard){
+            if( gameCard.get(ply.getSeatNo())== winnerCard){
                 winPly=ply;
                 ply.updateChips(totalBetAmmount);
                 break;
@@ -384,10 +423,7 @@ public class CCUGameActor extends AbstractActor {
         gameMessage.setSeatno(winPly.getSeatNo());
         gameMessage.setNum1(winPly.getChips());
         gameMessage.setType(GameMessage.MessageType.GAME);
-        gameSend.sendAll(gameMessage,5000);
-        //waitForAni(5000); //Result Time..
+        gameSend.sendAll(gameMessage);
+        waitForAni(5000); //Result Time..
     }
-
-
-
 }

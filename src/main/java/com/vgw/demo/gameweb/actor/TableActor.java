@@ -268,6 +268,10 @@ public class TableActor extends AbstractActor {
                         getSender().tell(viewList,ActorRef.noSender());
                     }
                 })
+                .match(PlayerInfo.class,p->{
+                    Player user = findUser(p.getSeatNo());
+                    getSender().tell(user,ActorRef.noSender());
+                })
                 .build();
     }
 

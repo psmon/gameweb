@@ -8,11 +8,11 @@ import com.vgw.demo.gameweb.message.GameMessage;
 import com.vgw.demo.gameweb.message.Greeting;
 import com.vgw.demo.gameweb.message.SessionMessage;
 import com.vgw.demo.gameweb.message.actor.*;
-import com.vgw.demo.gameweb.thread.Game;
 import scala.concurrent.Await;
 import scala.concurrent.Future;
 import scala.concurrent.duration.FiniteDuration;
 
+import java.util.ArrayDeque;
 import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.TimeUnit;
@@ -31,7 +31,7 @@ public class GameActor extends AbstractActor {
     private int gameid;
     private int tickCnt;
 
-    private Game.GameState gameState = Game.GameState.WAIT;
+    private GameState gameState = GameState.WAIT;
     private GameSend gameSend;
 
     private ActorRef  gameCore;
@@ -61,10 +61,9 @@ public class GameActor extends AbstractActor {
         FiniteDuration duration = FiniteDuration.create(1, TimeUnit.SECONDS);
         Future<ActorRef> fut = lobbySelect.resolveOne(duration);
         ActorRef lobbyActor = Await.result(fut, duration);
-
         gameSend = new GameSend(system,lobbyActor,tableActor);
         tickCnt=0;
-
+        actionMessage=new ArrayDeque<>();
         gameCore = getContext().actorOf( CCUGameActor.props(gameSend),"core");
         log.info(String.format("Create Game:%d", tableCreate.getTableId()));
     }
@@ -114,24 +113,22 @@ public class GameActor extends AbstractActor {
             gameSend.send(target,gameMessage);
     }
 
-
     protected boolean isStartGame() throws Exception {
         boolean hasNext = false;
         Integer seatCnt = (Integer) gameSend.askToTable(new TableInfo(TableInfo.Cmd.SeatCnt));
         Integer minPly = (Integer) gameSend.askToTable(new TableInfo(TableInfo.Cmd.MinPly));
-        if( gameState == Game.GameState.WAIT ){
+        if( gameState == GameState.WAIT ){
             if( seatCnt > minPly-1 ){
                 hasNext = true;
             }
         }else{
             if( seatCnt > minPly-1 ){
-                gameState = Game.GameState.WAIT;
+                gameState = GameState.WAIT;
                 hasNext = false;
             }
         }
         return hasNext;
     }
-
 
     @Override
     public AbstractActor.Receive createReceive() {
@@ -140,6 +137,10 @@ public class GameActor extends AbstractActor {
                     if( (tickCnt%100)==0)
                         log.info(String.format("Game Tick:%d",gameid));
 
+                    if(isStartGame() && tickCnt %10==0 ){
+                        gameCore.tell(new GameStateInfo(GameState.START),ActorRef.noSender());
+                        gameState=GameState.START;
+                    }
                     tickCnt++;
                     if(tickCnt>Integer.MAX_VALUE-1000){
                         tickCnt=0;
@@ -159,13 +160,17 @@ public class GameActor extends AbstractActor {
                 .match(SeatOut.class, s->{
                     seatOutPly(s.getPlayer());
                 })
+                .match(GameStateInfo.class,g->{
+                    gameState = g.getGameState();
+                })
                 .match(ActionMessage.class, a->{
                     ActionMessage.Cmd cmd = a.getCmd();
                     if(cmd== ActionMessage.Cmd.ADD){
                         addGameMessage(a.getSessionMessage());
                     }else if(cmd== ActionMessage.Cmd.PEEK){
                         SessionMessage sessionMessage = peekGameMessage();
-                        getSender().tell(sessionMessage,ActorRef.noSender());
+                        if(sessionMessage!=null)
+                            getSender().tell(sessionMessage.gameMessage,ActorRef.noSender());
                     }else if(cmd== ActionMessage.Cmd.CLEAR){
                         actionMessage.clear();
                     }
