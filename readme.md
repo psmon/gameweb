@@ -4,9 +4,9 @@
 - launchurl : http://localhost:8080/
 
 ## Application Layout
-- controller : endpoint for ws
+- controller : endpoint for websocket and rest
 - actor : There is only an actor design that works with web sockets, and you can fill in the server logic.
-- fakegame : The sample logic created here can be switched to the Actor model.
+- thread : The server logic implemented in actor is implemented in the same way as the thread model. Comparing actor vs threads is a good comparison to understand actors.
 - message : realtime message for game
 - static : html5 client resources ( pure javascript )
 
