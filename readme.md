@@ -24,7 +24,7 @@ The test code available you to understand AKKA's actor model of how to create se
 It works perfectly integrated with Spring.
 
 - [Spring With Akka](src/test/java/com/vgw/demo/gameweb/SpringAkkaIntegrationTest.java)
-- [UniteTest for Async Message](src/test/java/com/vgw/demo/gameweb/actor)
+- [UnitTest for Async Message](src/test/java/com/vgw/demo/gameweb/actor)
 
 
 ## Client Concept
