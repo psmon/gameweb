@@ -14,18 +14,18 @@
 
 spring boot 2 + websocket + Actor
 
-This allows you to learn basic web socket handles for multiplayer.
-
-There is a simple code to work with, but it is a sample code that multiplayer works. 
+This makes it to learn web socket handles for multiplayer.
 
 ![...](doc/ws-server.png)
 
 
-The test code allows you to understand AKKA's actor model of how to create server objects and send messages.
+The test code available you to understand AKKA's actor model of how to create server objects and send messages.
 
 It works perfectly integrated with Spring.
 
-[test code here](src/test/java/com/vgw/demo/gameweb/SpringAkkaIntegrationTest.java)
+- [Spring With Akka](src/test/java/com/vgw/demo/gameweb/SpringAkkaIntegrationTest.java)
+- [UniteTest for Async Message](src/test/java/com/vgw/demo/gameweb/actor)
+
 
 ## Client Concept
 
@@ -44,9 +44,3 @@ movie  : [link](http://wiki.webnori.com/display/devbegin/multiplayer-cardgame?pr
 AKKA Actor and Spring Rest are easy to change to distributed processing. It is not covered in this project. Please refer to the following link
 
 url : https://github.com/psmon/springcloud
-
-
-
-
-
-
