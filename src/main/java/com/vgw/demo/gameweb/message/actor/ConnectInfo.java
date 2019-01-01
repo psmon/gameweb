@@ -6,7 +6,7 @@ public class ConnectInfo {
 
     public enum Cmd
     {
-        CONNECT,DISCONET
+        CONNECT,DISCONET,FIND
     }
 
     private String sessionId;

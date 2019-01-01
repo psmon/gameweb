@@ -103,7 +103,7 @@ public class TableActor extends AbstractActor {
     protected void joinTable(Player ply){
         if(findUser(ply.getSession(),true)==null){
             viewList.add(ply);
-            gameActor.tell(new JoinPly(ply),ActorRef.noSender());
+            gameActor.tell(new JoinPly(ply),getSender());
         }else{
             //game.OnError(ply,"duplicate connect");
         }

@@ -3,6 +3,7 @@ package com.vgw.demo.gameweb.actor;
 import akka.actor.AbstractActor;
 import akka.actor.ActorRef;
 import akka.actor.ActorSelection;
+import akka.actor.Props;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
 import com.vgw.demo.gameweb.gameobj.Player;
@@ -32,11 +33,16 @@ public class LobbyActor extends AbstractActor {
     private LoggingAdapter log = Logging.getLogger(getContext().getSystem(), this);
     private Map<String, SimpMessageSendingOperations> sessionMgr = new HashMap<>();
 
+    // Props == Object creation hint
+    static public Props props() {
+        return Props.create(LobbyActor.class, () -> new LobbyActor());
+    }
+
     private void joinGameTable(int tableId,String name,String session) throws Exception {
         Player ply = new Player();
         ply.setName(name);
         ply.setSession(session);
-        findTableByID(tableId).tell(new JoinPly(ply),ActorRef.noSender());
+        findTableByID(tableId).tell(new JoinPly(ply),getSender());
     }
 
     private ActorRef findTableByID(int tableID) throws Exception {
@@ -50,9 +56,9 @@ public class LobbyActor extends AbstractActor {
 
 
     private ActorRef findTableALL() throws Exception {
-        String tableActorPath = "/user/lobby/*";
+        String tableActorPath = "/*";
         ActorSelection tableSelect = this.getContext().actorSelection(tableActorPath);
-        FiniteDuration duration = FiniteDuration.create(1, TimeUnit.SECONDS);
+        FiniteDuration duration = FiniteDuration.create(3, TimeUnit.SECONDS);
         Future<ActorRef> fut = tableSelect.resolveOne(duration);
         ActorRef tableActor = Await.result(fut, duration);
         return tableActor;
@@ -78,6 +84,7 @@ public class LobbyActor extends AbstractActor {
                     if(c.getCmd()== ConnectInfo.Cmd.CONNECT){
                         sessionMgr.put(c.getSessionId(),c.getWsSender());
                         log.info("user connected:"+c.getSessionId());
+                        getSender().tell("done",ActorRef.noSender());
                     }else if(c.getCmd()== ConnectInfo.Cmd.DISCONET){
                         sessionMgr.remove(c.getSessionId());
                         Player removeUser = new Player();
@@ -88,10 +95,16 @@ public class LobbyActor extends AbstractActor {
                         }else{
                             findTableALL().tell(new SeatOut(removeUser),ActorRef.noSender());
                         }
-
                         log.info("user disconnected:"+c.getSessionId());
+                        getSender().tell("done",ActorRef.noSender());
+                    }else if(c.getCmd() == ConnectInfo.Cmd.FIND){
+                        //Just For Test
+                        if(sessionMgr.containsKey(c.getSessionId())){
+                            getSender().tell("User exists",ActorRef.noSender());
+                        }else{
+                            getSender().tell("User does not exist",ActorRef.noSender());
+                        }
                     }
-                    sessionMgr.put(c.getSessionId(),c.getWsSender());
                 })
                 .match(TableCreate.class, t->{
                     // Create a table under the lobby, if you have an Actor named TableManagement, you can move easily.
@@ -99,6 +112,7 @@ public class LobbyActor extends AbstractActor {
                     if(t.getCmd() == TableCreate.Cmd.CREATE){
                         ActorRef tableActor = getContext().actorOf( TableActor.props(t,this.getSelf() ), tableUID);
                         tableActor.tell(t,ActorRef.noSender());
+                        getSender().tell("created",ActorRef.noSender());
                     }
                 })
                 .match(JoinGame.class, j->{

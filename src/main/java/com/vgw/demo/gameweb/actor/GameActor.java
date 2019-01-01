@@ -94,6 +94,9 @@ public class GameActor extends AbstractActor {
         gameMessage.setNum1(gameid);
         gameSend.send(ply,gameMessage);
 
+        //Test Forward
+        getSender().tell("joined",ActorRef.noSender());
+
         List<Player> playList = (List<Player>) gameSend.askToTable(new PlayerList(PlayerList.Cmd.PLAYER));
         for(Player other:playList){
             sendSeatInfo(other,false,ply);
