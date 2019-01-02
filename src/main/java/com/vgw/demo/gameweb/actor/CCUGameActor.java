@@ -22,8 +22,10 @@ import java.util.concurrent.TimeoutException;
 
 import static akka.pattern.Patterns.ask;
 
-//a game that Changes Cards to get Unique cards
+// TODO : It should be improved to FSM pattern for save game state as a non-block-king
+// Link : https://doc.akka.io/docs/akka/2.4/java/lambda-fsm.html
 
+//GameCORE - Changes Cards to get Unique cards
 @SuppressWarnings("Duplicates")
 public class CCUGameActor extends AbstractActor {
 
