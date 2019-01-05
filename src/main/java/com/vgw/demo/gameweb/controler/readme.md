@@ -1,5 +1,5 @@
 
 # Webocket With Actor
 
-![](/doc/actorwithws.png)
+![](../../../../../../../../doc/actorwithws.png)
 

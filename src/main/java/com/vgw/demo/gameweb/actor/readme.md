@@ -5,23 +5,22 @@ The test code available you to understand AKKA's actor model of how to create se
 
 It works perfectly integrated with Spring.
 
-- [Spring With Akka](src/test/java/com/vgw/demo/gameweb/SpringAkkaIntegrationTest.java)
-- [UnitTest for Async Message](src/test/java/com/vgw/demo/gameweb/actor)
-
+- [Spring With Akka](../../../../../../../../src/test/java/com/vgw/demo/gameweb/SpringAkkaIntegrationTest.java)
+- [UnitTest for Async Message](../../../../../../../../src/test/java/com/vgw/demo/gameweb/actor)
 
 ## Message design by Actor
 
 ### UseCase by Actor
 
-![image](doc/actordiagram.png)
+![image](../../../../../../../../doc/actordiagram.png)
 
 ### Composite Structure by Actor
 
-![image2](doc/actor-composites.png)
+![image2](../../../../../../../../doc/actor-composites.png)
 
 ### Sequence by ActorMessage
 
-![image3](doc/actor-sequence.png)
+![image3](../../../../../../../../doc/actor-sequence.png)
 
 ### Code implementation
     @Override

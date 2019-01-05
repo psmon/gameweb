@@ -29,8 +29,8 @@ This makes it to learn web socket handles for multiplayer.
 
 ![...](doc/ws-server.png)
 
-- [WebSocket With Actor](src/main/java/com/vgw/demo/gameweb/actor/readme.md)
-- [Java With AKKA](src/main/java/com/vgw/demo/gameweb/actor/readme.md)
+- [WebSocket With Actor](src/main/java/com/vgw/demo/gameweb/controler)
+- [Java With AKKA](src/main/java/com/vgw/demo/gameweb/actor)
 
 ## Client Concept
 
