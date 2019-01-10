@@ -70,6 +70,9 @@ It works perfectly integrated with Spring.
     tableAllActor.tell("some message",null);
 
 ### Unit Test
+    @Test
+    public void testIt() {
+        new TestKit(system) {{
             final ActorRef lobbyActor = system.actorOf(LobbyActor.props(),"lobby");
             final String testSessionID = "jaskfjkjaslfalsf";
 
@@ -98,6 +101,9 @@ It works perfectly integrated with Spring.
             // Find Again
             lobbyActor.tell(new ConnectInfo(testSessionID, null,ConnectInfo.Cmd.FIND),getRef());
             expectMsg(Duration.ofSeconds(1), "User does not exist");
+
+        }};
+    }
 
 
 Other Links
