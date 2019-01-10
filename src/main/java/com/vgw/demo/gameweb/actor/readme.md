@@ -69,6 +69,35 @@ It works perfectly integrated with Spring.
     ActorSelection tableAllActor = system.ActorSelection("user/lobby/table/*");
     tableAllActor.tell("some message",null);
 
+### Unit Test
+            final ActorRef lobbyActor = system.actorOf(LobbyActor.props(),"lobby");
+            final String testSessionID = "jaskfjkjaslfalsf";
+
+            // Create TableActor
+            for(int i=0;i<10;i++){
+                lobbyActor.tell( new TableCreate(i,"table-"+i , TableCreate.Cmd.CREATE),getRef() );
+                expectMsg(Duration.ofSeconds(1), "created");
+            }
+
+            // Try Connect
+            lobbyActor.tell(new ConnectInfo(testSessionID, null,ConnectInfo.Cmd.CONNECT),getRef());
+            expectMsg(Duration.ofSeconds(1), "done");
+
+            // Find User
+            lobbyActor.tell(new ConnectInfo(testSessionID, null,ConnectInfo.Cmd.FIND),getRef());
+            expectMsg(Duration.ofSeconds(1), "User exists");
+
+            // Join Table : Forward Check , lobby->table->game->getRef()
+            lobbyActor.tell(new JoinGame(1,"test",testSessionID),getRef() );
+            expectMsg(Duration.ofSeconds(1), "joined");
+
+            // Try Disconnect
+            lobbyActor.tell(new ConnectInfo(testSessionID, null,ConnectInfo.Cmd.DISCONET),getRef());
+            expectMsg(Duration.ofSeconds(3), "done");
+
+            // Find Again
+            lobbyActor.tell(new ConnectInfo(testSessionID, null,ConnectInfo.Cmd.FIND),getRef());
+            expectMsg(Duration.ofSeconds(1), "User does not exist");
 
 
 Other Links
