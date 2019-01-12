@@ -1,4 +1,4 @@
-package com.vgw.demo.gameweb.controler;
+package com.vgw.demo.gameweb.controler.ws;
 
 import com.vgw.demo.gameweb.message.GameMessage;
 import com.vgw.demo.gameweb.thread.Lobby;

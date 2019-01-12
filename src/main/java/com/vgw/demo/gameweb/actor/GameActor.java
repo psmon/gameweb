@@ -8,14 +8,11 @@ import com.vgw.demo.gameweb.message.GameMessage;
 import com.vgw.demo.gameweb.message.Greeting;
 import com.vgw.demo.gameweb.message.SessionMessage;
 import com.vgw.demo.gameweb.message.actor.*;
-import scala.concurrent.Await;
-import scala.concurrent.Future;
-import scala.concurrent.duration.FiniteDuration;
+import com.vgw.demo.gameweb.util.AkkaUtil;
 
 import java.util.ArrayDeque;
 import java.util.List;
 import java.util.Queue;
-import java.util.concurrent.TimeUnit;
 
 @SuppressWarnings("Duplicates")
 public class GameActor extends AbstractActor {
@@ -58,9 +55,7 @@ public class GameActor extends AbstractActor {
         ActorSystem system = getContext().getSystem();
         this.gameid= tableCreate.getTableId();
         ActorSelection lobbySelect = this.getContext().actorSelection("/user/lobby");
-        FiniteDuration duration = FiniteDuration.create(1, TimeUnit.SECONDS);
-        Future<ActorRef> fut = lobbySelect.resolveOne(duration);
-        ActorRef lobbyActor = Await.result(fut, duration);
+        ActorRef lobbyActor = AkkaUtil.SelectToRef(lobbySelect);
         gameSend = new GameSend(system,lobbyActor,tableActor);
         tickCnt=0;
         actionMessage=new ArrayDeque<>();

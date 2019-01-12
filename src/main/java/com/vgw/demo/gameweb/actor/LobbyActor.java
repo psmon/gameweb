@@ -9,6 +9,7 @@ import akka.event.LoggingAdapter;
 import com.vgw.demo.gameweb.gameobj.Player;
 import com.vgw.demo.gameweb.message.GameMessage;
 import com.vgw.demo.gameweb.message.actor.*;
+import com.vgw.demo.gameweb.util.AkkaUtil;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.messaging.handler.annotation.Payload;
@@ -16,13 +17,9 @@ import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.messaging.simp.SimpMessageType;
 import org.springframework.stereotype.Component;
-import scala.concurrent.Await;
-import scala.concurrent.Future;
-import scala.concurrent.duration.FiniteDuration;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
 
 // LobbyActor + SocketHandler
 @Component
@@ -48,9 +45,7 @@ public class LobbyActor extends AbstractActor {
     private ActorRef findTableByID(int tableID) throws Exception {
         String tableActorPath = "/user/lobby/table-"+tableID;
         ActorSelection tableSelect = this.getContext().actorSelection(tableActorPath);
-        FiniteDuration duration = FiniteDuration.create(1, TimeUnit.SECONDS);
-        Future<ActorRef> fut = tableSelect.resolveOne(duration);
-        ActorRef tableActor = Await.result(fut, duration);
+        ActorRef tableActor = AkkaUtil.SelectToRef(tableSelect);
         return tableActor;
     }
 
@@ -58,9 +53,7 @@ public class LobbyActor extends AbstractActor {
     private ActorRef findTableALL() throws Exception {
         String tableActorPath = "/*";
         ActorSelection tableSelect = this.getContext().actorSelection(tableActorPath);
-        FiniteDuration duration = FiniteDuration.create(3, TimeUnit.SECONDS);
-        Future<ActorRef> fut = tableSelect.resolveOne(duration);
-        ActorRef tableActor = Await.result(fut, duration);
+        ActorRef tableActor = AkkaUtil.SelectToRef(tableSelect);
         return tableActor;
     }
 

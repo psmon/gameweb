@@ -1,4 +1,4 @@
-package com.vgw.demo.gameweb.controler;
+package com.vgw.demo.gameweb.controler.ws;
 
 import akka.actor.ActorRef;
 import akka.actor.ActorSelection;
