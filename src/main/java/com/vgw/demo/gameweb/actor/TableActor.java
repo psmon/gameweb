@@ -215,6 +215,12 @@ public class TableActor extends AbstractActor {
     @Override
     public AbstractActor.Receive createReceive() {
         return receiveBuilder()
+                .match(GameTick.class,t->{
+                    if(t.getCmd() == GameTick.Cmd.TESTPING){
+                        //You can pass the sender and delegate the last response to another actor.
+                        gameActor.tell(t,getSender());
+                    }
+                })
                 .match(ConnectInfo.class, c -> {
                 })
                 .match(Greeting.class, c -> {

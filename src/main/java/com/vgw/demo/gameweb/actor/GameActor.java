@@ -140,17 +140,22 @@ public class GameActor extends AbstractActor {
     public AbstractActor.Receive createReceive() {
         return receiveBuilder()
                 .match(GameTick.class, c -> {
-                    if( (tickCnt%100)==0)
-                        log.info(String.format("Game Tick:%d",gameid));
+                    if(c.getCmd() == GameTick.Cmd.TESTPING){
+                        // Just Alive Check
+                        getSender().tell("ok",ActorRef.noSender());
+                    }else{
+                        if( (tickCnt%100)==0)
+                            log.info(String.format("Game Tick:%d",gameid));
 
-                    if(isStartGame() && tickCnt %10==0 ){
-                        gameCore.tell(new GameStateInfo(GameState.START),ActorRef.noSender());
-                        gameState=GameState.START;
-                    }
-                    tickCnt++;
-                    if(tickCnt>Integer.MAX_VALUE-1000){
-                        tickCnt=0;
-                        log.debug("Tick Reset");
+                        if(isStartGame() && tickCnt %10==0 ){
+                            gameCore.tell(new GameStateInfo(GameState.START),ActorRef.noSender());
+                            gameState=GameState.START;
+                        }
+                        tickCnt++;
+                        if(tickCnt>Integer.MAX_VALUE-1000){
+                            tickCnt=0;
+                            log.debug("Tick Reset");
+                        }
                     }
                 })
                 .match(Greeting.class, c -> {

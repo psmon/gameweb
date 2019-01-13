@@ -1,9 +1,9 @@
 
-
 ## RestAPI with ActorMessage
 
 ![](../../../../../../../../doc/rest-actor.png)
 
+    // Simple ASK
     @RequestMapping("/gameinfo/dealer/{gameId}")
     int getDealer(@PathVariable String gameId) {
         try{
@@ -15,6 +15,26 @@
             return -100;
         }
     }
+    
+    // Forward ASK
+    // In Controller : ASK -> TABLE -> GAME -> RESPONSE
+    // Finally, the controller does not need to know who is responding.
+    return (String)AkkaUtil.AskToActorSelect(tableActor,new GameTick(GameTick.Cmd.TESTPING),1);
+    
+    // In TableActor
+    .match(GameTick.class,t->{
+        if(t.getCmd() == GameTick.Cmd.TESTPING){
+            //You can pass the sender and delegate the last response to another actor.
+            gameActor.tell(t,getSender());
+        }
+    })
+    
+    // In GameActor
+    .match(GameTick.class, c -> {
+        if(c.getCmd() == GameTick.Cmd.TESTPING){
+            // Just Alive Check
+            getSender().tell("ok",ActorRef.noSender());
+        }    
     
 ## Webocket with Actor
 
