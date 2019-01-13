@@ -49,15 +49,12 @@ public class LobbyActor extends AbstractActor {
         return tableActor;
     }
 
-
     private ActorRef findTableALL() throws Exception {
         String tableActorPath = "/*";
         ActorSelection tableSelect = this.getContext().actorSelection(tableActorPath);
         ActorRef tableActor = AkkaUtil.SelectToRef(tableSelect);
         return tableActor;
     }
-
-
 
     protected void send(String sessionId,@Payload GameMessage gameMessage){
         SimpMessageSendingOperations messagingTemplate = sessionMgr.get(sessionId);

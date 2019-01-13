@@ -27,7 +27,7 @@ import static akka.pattern.Patterns.ask;
 
 //GameCORE - Changes Cards to get Unique cards
 @SuppressWarnings("Duplicates")
-public class CCUGameActor extends AbstractActor {
+public class GUCGameActor extends AbstractActor {
 
     private LoggingAdapter log = Logging.getLogger(getContext().getSystem(), this);
     private ActorRef gameActor;
@@ -41,10 +41,10 @@ public class CCUGameActor extends AbstractActor {
     private GameSend gameSend;
 
     static public Props props(GameSend gameSend) {
-        return Props.create(CCUGameActor.class, () -> new CCUGameActor(gameSend));
+        return Props.create(GUCGameActor.class, () -> new GUCGameActor(gameSend));
     }
 
-    CCUGameActor(GameSend gameSend) {
+    GUCGameActor(GameSend gameSend) {
         this.gameSend = gameSend;
         gameActor = getContext().getParent();
         turnSeq=0;

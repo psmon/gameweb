@@ -20,19 +20,21 @@ public class GameActor extends AbstractActor {
     private LoggingAdapter log = Logging.getLogger(getContext().getSystem(), this);
 
     // TODO : Improve Statement - https://doc.akka.io/docs/akka/2.4/java/fsm.html
-    public enum GameState
-    {
+    public enum GameState {
         WAIT,START,READY, CARD1,BET,TURN1,TURN2 ,RESULT,CLOSE
+    }
+
+    public enum GameType {
+        GUCGAME_LEGACY, //Get Unique CardGame Legacy
+        GUCGAME         //Get Uniqie CardGame -FSM version
     }
 
     private int gameid;
     private int tickCnt;
-
     private GameState gameState = GameState.WAIT;
+    private GameType gameType = GameType.GUCGAME_LEGACY;
     private GameSend gameSend;
-
     private ActorRef  gameCore;
-
     private Queue<SessionMessage> actionMessage;
     private List<Integer>  gameCard;
 
@@ -59,7 +61,13 @@ public class GameActor extends AbstractActor {
         gameSend = new GameSend(system,lobbyActor,tableActor);
         tickCnt=0;
         actionMessage=new ArrayDeque<>();
-        gameCore = getContext().actorOf( CCUGameActor.props(gameSend),"core");
+
+        //Create Game Core : can be optional...
+        switch (gameType){
+            case GUCGAME_LEGACY:
+                gameCore = getContext().actorOf( GUCGameActor.props(gameSend),"core");
+                break;
+        }
         log.info(String.format("Create Game:%d", tableCreate.getTableId()));
     }
 
