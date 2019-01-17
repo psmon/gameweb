@@ -16,6 +16,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
+// Note : If actor-remote is available, you do not need to use rest.
+// url - https://doc.akka.io/docs/akka/2.5/remoting.html
 @RestController
 public class GameInfoController {
 
