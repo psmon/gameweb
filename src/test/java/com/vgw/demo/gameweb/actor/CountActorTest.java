@@ -15,7 +15,6 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 import java.time.Duration;
 
-@RunWith(SpringRunner.class)
 @SpringBootTest
 @ContextConfiguration(classes = AppConfiguration.class)
 public class CountActorTest {
@@ -56,6 +55,9 @@ public class CountActorTest {
             // for tourment register/unregister
             countActor.tell("buyincount",observer);
             expectMsg(Duration.ofSeconds(1),3);
+
+            // print event..
+            countActor.tell("print",null);
 
             // Reset for DownTime
             countActor.tell("reset",null);
