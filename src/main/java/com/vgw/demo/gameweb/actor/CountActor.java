@@ -4,6 +4,7 @@ import akka.actor.Props;
 import akka.persistence.AbstractPersistentActor;
 import akka.persistence.SnapshotOffer;
 import akka.persistence.SnapshotSelectionCriteria;
+import kamon.Kamon;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -104,6 +105,10 @@ public class CountActor extends AbstractPersistentActor {
         deleteSnapshots(SnapshotSelectionCriteria.Latest());
     }
 
+    private void crash()  {
+        postStop();
+    }
+
     @Override
     public String persistenceId() { return "countactor-"+playerId; }
 
@@ -119,6 +124,7 @@ public class CountActor extends AbstractPersistentActor {
     public Receive createReceive() {
         return receiveBuilder()
                 .match(Cmd.class, c -> {
+                    Kamon.currentSpan().tag("my-tag", "awesome-value");
                     final String data = c.getData();
                     final Evt evt = new Evt(data + "-" + getNumEvents());
                     persist(evt, (Evt e) -> {
@@ -141,6 +147,7 @@ public class CountActor extends AbstractPersistentActor {
                     getSender().tell(playcount,null);
                 })
                 .matchEquals("reset", s-> reset() )
+                .matchEquals("crash", s-> crash() )
                 .build();
     }
 

@@ -3,6 +3,7 @@ package com.vgw.demo.gameweb.actor;
 
 import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
+import akka.actor.PoisonPill;
 import akka.testkit.javadsl.TestKit;
 import com.vgw.demo.gameweb.config.AppConfiguration;
 import org.junit.AfterClass;
@@ -38,7 +39,7 @@ public class CountActorTest {
     public void testIt(){
         new TestKit(system) {{
             final String playerId="psmon";
-            final ActorRef countActor = system.actorOf(CountActor.props(playerId), "countActor");
+            ActorRef countActor = system.actorOf(CountActor.props(playerId), "countActor");
             final ActorRef observer = getRef();
 
             countActor.tell("reset",null);
@@ -65,6 +66,14 @@ public class CountActorTest {
             countActor.tell(new Cmd("inc-playcount"),null);
             countActor.tell("playcount",observer);
             expectMsg(Duration.ofSeconds(1),2);
+
+            // Recover Test
+            countActor.tell(PoisonPill.getInstance(),null);
+            expectNoMessage(Duration.ofSeconds(3));
+            countActor = system.actorOf(CountActor.props(playerId), "countActor");
+            countActor.tell("print",null);
+            countActor.tell("playcount",observer);
+            expectMsg(Duration.ofSeconds(1),3);
 
         }};
     }

@@ -89,6 +89,34 @@
 			<version>1.8</version>
 		</dependency>
 
+		<!-- akka monitor-kamon -->
+		<dependency>
+			<groupId>io.kamon</groupId>
+			<artifactId>kamon-core_2.11</artifactId>
+			<version>1.1.0</version>
+		</dependency>
+
+		<dependency>
+			<groupId>io.kamon</groupId>
+			<artifactId>kamon-akka-2.5_2.12</artifactId>
+			<version>1.1.0</version>
+		</dependency>
+
+
+		<!-- Optional Dependencies -->
+		<dependency>
+			<groupId>io.kamon</groupId>
+			<artifactId>kamon-prometheus_2.11</artifactId>
+			<version>1.0.0</version>
+		</dependency>
+		<dependency>
+			<groupId>io.kamon</groupId>
+			<artifactId>kamon-zipkin_2.11</artifactId>
+			<version>1.0.0</version>
+		</dependency>
+
+
+
 		<dependency>
 			<groupId>org.webjars</groupId>
 			<artifactId>webjars-locator-core</artifactId>

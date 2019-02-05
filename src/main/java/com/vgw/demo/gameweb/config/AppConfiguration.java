@@ -18,7 +18,7 @@ public class AppConfiguration {
 
     @Bean
     public ActorSystem actorSystem() {
-        ActorSystem system = ActorSystem.create("akka-spring-demo");
+        ActorSystem system = ActorSystem.create("my-app");
         SpringExtension.SPRING_EXTENSION_PROVIDER.get(system).initialize(applicationContext);
         return system;
     }

@@ -59,9 +59,27 @@ link:
         Assert.assertTrue(-100 < dealer);
     }
 
+# CQRS
+![image](../../../../../../../doc/eventsourcing.png)
+
+## UnitTest Sample
+    final String playerId="psmon";
+    ActorRef countActor = system.actorOf(CountActor.props(playerId), "countActor");
+    final ActorRef observer = getRef();
+
+    countActor.tell("reset",null);
+    countActor.tell(new Cmd("inc-playcount"),null);
+    countActor.tell(new Cmd("dec-playcount"),null);
+    countActor.tell(new Cmd("inc-playcount"),null);
+    countActor.tell(new Cmd("inc-buyincount"),null);
+    countActor.tell(new Cmd("inc-buyincount"),null);
+    countActor.tell(new Cmd("inc-buyincount"),null);
+
+    countActor.tell("playcount",observer);
+    expectMsg(Duration.ofSeconds(1),1);
+
 
 #### Todo:Next
-UnitTest for CQRS - 
 
 - https://github.com/Romeh/spring-boot-akka-event-sourcing-starter
 - https://github.com/SBozhko/akka-examples/blob/master/Chapter8/AkkaUnitTest/src/test/java/org/akka/essentials/unittest/example/ExampleUnitTest.java
