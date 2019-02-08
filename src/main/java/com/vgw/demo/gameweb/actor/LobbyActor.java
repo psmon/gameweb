@@ -111,6 +111,11 @@ public class LobbyActor extends AbstractActor {
                 .match(MessageWS.class, m->{
                     send(m.getSession(),m.getGameMessage());
                 })
+                .matchEquals("ping", s -> {
+                    // check path for round robbin
+                    System.out.println(s+":"+this.getSelf().path());
+                    getSender().tell("pong",ActorRef.noSender());
+                })
                 .build();
     }
 }
