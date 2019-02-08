@@ -48,7 +48,7 @@ public class CountActorTest {
         Money c= new Money(new BigDecimal("100.12"));
         assertThat(a).isEqualTo(b);
         assertThat(a).isEqualTo(c);
-        assertThat(b).isEqualTo(a);     // test failed...
+        assertThat(b).isEqualTo(a);     // a == b Even if the verification succeeds, b == a may fail.
 
     }
 
