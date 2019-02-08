@@ -18,9 +18,10 @@ public class Money {
         if (!(o instanceof Money)) {
             return false;
         }
-        if(someState == true) return false;
-
         Money money = (Money)o;
+
+        if(someState != money.someState) return false;
+
         if(money.someState = true){
             //This is a bad case, but it is possible. : The equals function can change the right state
             // true = money.someState <== This can cause a compile error and reduce the mistakes of assigning to conditional statements.
